@@ -44,3 +44,40 @@ test('ingestão mantém idempotência e fallback quando a Groq falha', () => {
   assert.match(ingest, /processing_status: "IGNORED"/);
 });
 
+test('navegação do efetivo preserva a subseção escolhida', () => {
+  const app = fs.readFileSync(path.join(root, 'js/app.js'), 'utf8');
+  assert.match(app, /if\(route==="efetivo"\)window\.csrEffectiveSection=section/);
+  assert.match(app, /active=window\.csrEffectiveSection\|\|"control"/);
+  assert.match(app, /show\(active\)/);
+  assert.match(app, /data-eff-nav="absence"/);
+  assert.match(app, /data-eff-nav="sanction"/);
+  assert.match(app, /data-eff-nav="overtime"/);
+});
+
+test('feedback de criação, notificações e guia usam a interface revisada', () => {
+  const app = fs.readFileSync(path.join(root, 'js/app.js'), 'utf8');
+  const workspace = fs.readFileSync(path.join(root, 'js/workspace-v58.js'), 'utf8');
+  const html = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
+  const corporate = fs.readFileSync(path.join(root, 'css/corporate-v511.css'), 'utf8');
+  assert.doesNotMatch(app, /Usuário criado no Supabase/);
+  assert.match(app, /toast\("Usuário criado\."/);
+  assert.match(html, /corporate-v511\.css/);
+  assert.match(corporate, /\.v54-notif-dropdown/);
+  assert.match(workspace, /class="guide-module"/);
+  assert.match(workspace, /Como utilizar/);
+  assert.match(workspace, /data-guide-route/);
+});
+
+test('subseções do menu apontam para controles existentes', () => {
+  const app = fs.readFileSync(path.join(root, 'js/app.js'), 'utf8');
+  const html = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
+  assert.match(app, /assistente:\{chat:'\[data-ai-choice="chat"\]',config:'\[data-ai-choice="config"\]',manuals:'\[data-ai-choice="manuals"\]'\}/);
+  assert.match(app, /passagem:\{create:'\[data-shift-tab="create"\]',received:'\[data-shift-tab="received"\]',history:'\[data-shift-tab="history"\]'\}/);
+  assert.match(app, /sinistro:\{new:'\[data-choice="new"\]',history:'\[data-choice="history"\]'\}/);
+  assert.match(app, /route==='efetivo'&&section==='early'/);
+  assert.match(app, /route==='assistente'&&section==='team'/);
+  assert.match(app, /csrChecklistTab=section/);
+  assert.match(html, /data-shift-tab="create"/);
+  assert.match(html, /data-shift-tab="received"/);
+  assert.match(html, /data-shift-tab="history"/);
+});
