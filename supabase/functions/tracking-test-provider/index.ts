@@ -1,10 +1,23 @@
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { corsHeaders, json } from "../_shared/cors.ts";
 import { TestTrackingProvider } from "../_shared/tracking.ts";
 
 Deno.serve(async (request) => {
   if (request.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
   const secret = Deno.env.get("TRACKING_INGEST_SECRET");
-  if (!secret || request.headers.get("x-tracking-secret") !== secret) return json({ error: "Não autorizado" }, 401);
+  if (!secret) return json({ error: "Simulador não configurado" }, 503);
+  const suppliedSecret = request.headers.get("x-tracking-secret");
+  const bearer = request.headers.get("Authorization")?.replace(/^Bearer\s+/i, "") || "";
+  let authorized = suppliedSecret === secret;
+  const db = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!, { auth: { persistSession: false } });
+  if (!authorized && bearer) {
+    const userResult = await db.auth.getUser(bearer);
+    if (userResult.data.user) {
+      const profile = await db.from("profiles").select("access_role,active").eq("id", userResult.data.user.id).maybeSingle();
+      authorized = profile.data?.active === true && profile.data?.access_role === "Administrador";
+    }
+  }
+  if (!authorized) return json({ error: "Não autorizado" }, 401);
   try {
     const override = await request.json().catch(() => ({}));
     const sample = new TestTrackingProvider().toSmartRiskEvent({

@@ -81,3 +81,35 @@ test('subseções do menu apontam para controles existentes', () => {
   assert.match(html, /data-shift-tab="received"/);
   assert.match(html, /data-shift-tab="history"/);
 });
+
+test('formulário de efetivo abre mesmo com configurações remotas incompletas', () => {
+  const app = fs.readFileSync(path.join(root, 'js/app.js'), 'utf8');
+  const flows = fs.readFileSync(path.join(root, 'js/flows-v59.js'), 'utf8');
+  assert.match(app, /db\.tabSettings=Object\.assign\(defaultTabSettings\(\),db\.tabSettings\|\|\{\}\)/);
+  assert.match(flows, /settings\.plantoes\)&&settings\.plantoes\.length\?settings\.plantoes:\['Diurno','Noturno','Comercial'\]/);
+  assert.match(flows, /db\(\)\.operationalBases\|\|\[\]/);
+  assert.match(flows, /Falha ao abrir o registro de efetivo/);
+});
+
+test('fluxo de ocorrência encaminha contato sem sucesso ao cliente pelo backend', () => {
+  const migration = fs.readFileSync(path.join(root, 'supabase/003_alert_occurrence_flow.sql'), 'utf8');
+  assert.match(migration, /occurrence_check_status in \('PENDING','INCORRECT','CORRECT'\)/);
+  assert.match(migration, /contact_result is null or contact_result in \('SUCCESS','NO_SUCCESS'\)/);
+  assert.match(migration, /create or replace function public\.register_tracking_occurrence_result/);
+  assert.match(migration, /then now\(\)\+interval '1 minute'/);
+  assert.match(migration, /set status='WAITING_CLIENT'/);
+  assert.match(migration, /Alerta encaminhado automaticamente à transportadora/);
+  assert.match(migration, /select public\.tracking_workflow_tick\(\)/);
+});
+
+test('simulador do integrador exige administrador e não expõe segredo no frontend', () => {
+  const app = fs.readFileSync(path.join(root, 'js/app.js'), 'utf8');
+  const provider = fs.readFileSync(path.join(root, 'supabase/functions/tracking-test-provider/index.ts'), 'utf8');
+  assert.match(app, /id="tracking-simulator-form"/);
+  assert.match(app, /functions\.invoke\("tracking-test-provider"/);
+  assert.doesNotMatch(app, /TRACKING_INGEST_SECRET/);
+  assert.match(provider, /profile\.data\?\.access_role === "Administrador"/);
+  assert.match(app, /register_tracking_occurrence_result/);
+  assert.match(app, /Tratativa incorreta/);
+  assert.match(app, /Tratativa correta/);
+});
