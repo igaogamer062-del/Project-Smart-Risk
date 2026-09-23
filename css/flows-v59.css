@@ -1,0 +1,26 @@
+/* V5.9: compact operational overview and linked workflows. */
+#app-screen .v55-main-charts .csr-chart-card{min-height:205px!important;padding:16px!important}
+#app-screen .csr-main-charts .csr-chart-bars{display:block!important;min-height:0!important;height:auto!important}
+#app-screen .csr-main-charts .csr-chart-row{margin:8px 0!important;min-height:16px!important}
+#app-screen .csr-donut{width:104px!important;height:104px!important}
+#app-screen .v58-chart-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:12px 0}
+#app-screen .v58-chart-grid .panel{min-height:125px!important;padding:16px!important}
+#app-screen .v58-chart-grid h2{font-size:14px;margin:0 0 12px}
+#app-screen .v58-bar{margin:10px 0;grid-template-columns:minmax(85px,1fr) 1fr 20px;font-size:12px;gap:8px}
+#app-screen .v58-histogram{height:125px}
+#app-screen .v58-histogram i{max-height:80px}
+.v59-tracking{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:14px 0}
+.v59-tracking .panel{margin:0!important;max-width:none!important;padding:16px!important;min-width:0}
+.v59-tracking header{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}.v59-tracking h2{font-size:14px;margin:0}.v59-tracking h2 span{color:#13836b}.v59-tracking header button{border:0;border-radius:50%;width:30px;height:30px;background:var(--bg,#f0f3f6);color:inherit}.v59-rail{display:flex;gap:10px;overflow-x:auto;min-height:62px;align-items:center;scrollbar-width:thin}.v59-rail>button{display:flex;align-items:center;gap:8px;flex:0 0 180px;text-align:left;padding:12px;border:1px solid var(--v54-line,#dde2e6);border-radius:9px;color:inherit;background:var(--v54-paper,#fff)}.v59-rail small{display:block;margin-top:4px;font-size:11px}.v59-rail .v58-criticality{display:none}.v59-rail p{width:100%;text-align:center;color:var(--muted);border:1px dashed var(--v54-line,#dde2e6);padding:18px;font-size:12px}
+.v58-alert-dot.pronta{background:#087bbf;box-shadow:0 0 0 3px #087bbf18}.v58-alert-dot.incident{background:#d41445;box-shadow:0 0 0 3px #d4144530}
+.v59-pending strong{font-size:30px}.v59-progress{height:7px;background:#e5e9ed;margin:10px 0;border-radius:4px;overflow:hidden}.v59-progress i{display:block;height:100%;background:#ba8113}
+.v59-staff-line{display:grid;grid-template-columns:repeat(auto-fit,minmax(125px,1fr)) 40px;gap:10px;align-items:end;padding:8px 0;border-bottom:1px solid var(--v54-line,#ddd)}.v59-staff-line button{height:42px;border:1px solid var(--v54-line,#ddd);border-radius:7px;background:transparent;color:inherit}.v59-actions{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.v59-actions button{min-height:70px;border:1px solid var(--v54-line,#ddd);border-radius:8px;background:var(--v54-paper,#fff);color:inherit;font:inherit}.v59-actions button:hover{border-color:#138eb9}.v59-history{border-top:1px solid var(--v54-line,#ddd);padding:14px 0}.v59-history small{display:block;margin-top:5px}.v59-linked-summary p{line-height:1.6}.attachment img,#incident-attachments img,#sn3-media img{max-height:280px;object-fit:contain}
+@media(max-width:1000px){#app-screen .v58-chart-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:680px){.v59-tracking,#app-screen .v58-chart-grid{grid-template-columns:1fr}.v59-actions{grid-template-columns:1fr}.v59-staff-line{grid-template-columns:1fr}.v59-rail>button{flex-basis:165px}}
+
+@media(min-width:1200px){#app-screen .v58-chart-grid{grid-template-columns:repeat(5,minmax(0,1fr))}}
+#app-screen .csr-main-charts .csr-chart-row{margin:5px 0!important}
+#app-screen .v58-histogram{height:90px}
+#app-screen .v58-histogram i{max-height:55px}
+
+#app-screen .v58-histogram{gap:2px;min-width:0} #app-screen .v58-histogram div{min-width:0;font-size:9px}

@@ -1,0 +1,78 @@
+/* BAT GR V5.2 — navegação, perfil Motorista e cores semânticas acessíveis. */
+
+header.topbar{z-index:120}
+.workspace-nav{z-index:110}
+.topbar-right>div{position:relative}
+.avatar-menu{top:calc(100% + 10px);right:0;left:auto;min-width:190px;z-index:220;padding:6px;border-radius:12px;box-shadow:0 18px 45px rgba(17,29,55,.18)}
+.avatar-menu a{display:flex;align-items:center;gap:10px;border-radius:8px;padding:11px 12px;white-space:nowrap}
+.avatar-menu a span{width:18px;display:inline-grid;place-items:center;color:var(--blue);font-weight:800}
+.avatar-menu hr{margin:4px 0}
+
+/* No computador os grupos abrem ao apontar; clique continua funcionando no toque. */
+@media (hover:hover) and (pointer:fine){
+  .workspace-nav-group:hover .workspace-nav-dropdown,
+  .workspace-nav-group:focus-within .workspace-nav-dropdown{opacity:1;visibility:visible;transform:none}
+  .workspace-nav-group:hover .workspace-nav-trigger b,
+  .workspace-nav-group:focus-within .workspace-nav-trigger b{transform:rotate(180deg)}
+}
+
+/* Paleta semântica do modo claro. */
+:root{
+  --semantic-success-bg:#e4f5eb;--semantic-success-text:#17643a;--semantic-success-border:#b9dfc9;
+  --semantic-danger-bg:#fde8e8;--semantic-danger-text:#a62c2c;--semantic-danger-border:#efbcbc;
+  --semantic-warning-bg:#fff2d8;--semantic-warning-text:#835400;--semantic-warning-border:#efd29a;
+  --semantic-info-bg:#e8f1ff;--semantic-info-text:#285d9b;--semantic-info-border:#bdd2ef;
+  --semantic-neutral-bg:#edf1f5;--semantic-neutral-text:#566071;--semantic-neutral-border:#d4dbe5;
+}
+
+body.theme-dark{
+  --semantic-success-bg:#173b2e;--semantic-success-text:#80e4b0;--semantic-success-border:#2d694e;
+  --semantic-danger-bg:#462328;--semantic-danger-text:#ffaaaa;--semantic-danger-border:#794047;
+  --semantic-warning-bg:#44351d;--semantic-warning-text:#ffd37c;--semantic-warning-border:#735a2d;
+  --semantic-info-bg:#1e3557;--semantic-info-text:#9bc6ff;--semantic-info-border:#365a87;
+  --semantic-neutral-bg:#263143;--semantic-neutral-text:#c7d0df;--semantic-neutral-border:#3b485d;
+}
+
+body.theme-dark #app-screen .btn-success{background:#277c5b!important;border-color:#3b9874!important;color:#fff!important}
+body.theme-dark #app-screen .btn-success:hover{background:#31936e!important}
+body.theme-dark #app-screen .btn-danger{background:var(--semantic-danger-bg)!important;border:1px solid var(--semantic-danger-border)!important;color:var(--semantic-danger-text)!important}
+body.theme-dark #app-screen .btn-danger:hover{background:#563037!important}
+body.theme-dark #app-screen .btn-warning{background:#8b651e!important;border-color:#aa8031!important;color:#fff4d5!important}
+body.theme-dark #app-screen .status-maintenance{background:var(--semantic-warning-bg)!important;color:var(--semantic-warning-text)!important;border-color:var(--semantic-warning-border)!important}
+body.theme-dark #app-screen .status-overdue{background:var(--semantic-danger-bg)!important;color:var(--semantic-danger-text)!important;border-color:var(--semantic-danger-border)!important}
+body.theme-dark #app-screen .status-resolved{background:var(--semantic-success-bg)!important;color:var(--semantic-success-text)!important;border-color:var(--semantic-success-border)!important}
+body.theme-dark #app-screen .status-cancelled{background:var(--semantic-neutral-bg)!important;color:var(--semantic-neutral-text)!important;border-color:var(--semantic-neutral-border)!important}
+body.theme-dark #app-screen .toast.success,
+body.theme-dark .toast.success{background:#1e6b4e!important;color:#fff!important}
+body.theme-dark #app-screen .toast.error,
+body.theme-dark .toast.error{background:#8f3038!important;color:#fff!important}
+body.theme-dark #app-screen .fr-alert,
+body.theme-dark #app-screen .route-alerts{background:var(--semantic-warning-bg)!important;border-color:var(--semantic-warning-border)!important;color:var(--semantic-warning-text)!important}
+body.theme-dark #app-screen .badge{background:var(--semantic-info-bg)!important;color:var(--semantic-info-text)!important;border-color:var(--semantic-info-border)!important}
+
+body.theme-dark .tone-blue .role-metric-icon{background:#1e3557;color:#9bc6ff}
+body.theme-dark .tone-amber .role-metric-icon{background:#44351d;color:#ffd37c}
+body.theme-dark .tone-violet .role-metric-icon{background:#332b55;color:#c2b2ff}
+body.theme-dark .tone-orange .role-metric-icon{background:#4c3026;color:#ffb28f}
+body.theme-dark .tone-red .role-metric-icon{background:#462328;color:#ffaaaa}
+body.theme-dark .tone-green .role-metric-icon{background:#173b2e;color:#80e4b0}
+body.theme-dark .tone-cyan .role-metric-icon{background:#193d43;color:#7cd9df}
+body.theme-dark #app-screen .notif-badge,
+body.theme-dark #app-screen .chat-badge{background:#d64e59!important;color:#fff!important}
+body.theme-dark #app-screen select option{background:#151c2a;color:#edf1fa}
+body.theme-dark #app-screen input:disabled,
+body.theme-dark #app-screen select:disabled,
+body.theme-dark #app-screen textarea:disabled{background:#222a39!important;color:#8f9ab0!important;opacity:1}
+body.theme-dark #app-screen .avatar-menu{background:#1a2436!important;border:1px solid #344157!important}
+body.theme-dark #app-screen .avatar-menu a{color:#edf3fc!important}
+body.theme-dark #app-screen .avatar-menu a:hover{background:#253149!important}
+
+/* A tela de autenticação é sempre clara. */
+body.theme-dark #login-screen,
+body.theme-dark #login-screen *{color-scheme:light}
+
+#um-manager-group[hidden]{display:none!important}
+
+@media(max-width:680px){
+  .avatar-menu{position:fixed;top:62px;right:12px;min-width:210px}
+}

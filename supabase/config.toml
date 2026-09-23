@@ -1,0 +1,17 @@
+project_id = "smart-risk"
+
+[functions.login-username]
+verify_jwt = false
+
+[functions.tracking-ingest]
+verify_jwt = false
+
+[functions.tracking-test-provider]
+verify_jwt = false
+
+[functions.tracking-workflow]
+verify_jwt = false
+
+[functions.groq-test]
+verify_jwt = true
+

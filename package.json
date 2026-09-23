@@ -1,0 +1,8 @@
+{
+  "name": "central-smart-risk",
+  "private": true,
+  "scripts": {
+    "test": "node --test tests/*.test.js"
+  }
+}
+

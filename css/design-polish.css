@@ -1,0 +1,70 @@
+/* Central Smart Risk — visual system. Keeps the V5.3 layouts and behavior. */
+:root{
+  --navy:#0B1B2E;--navy-2:#122A43;--blue:#087FE3;--blue-dark:#0868BA;
+  --sky:#13B5F4;--danger:#EF174B;--bg:#F4F7FA;--card:#fff;
+  --border:#DCE5ED;--text:#142438;--muted:#607286;
+  --radius:8px;--shadow:0 1px 3px #0b1b2e0b;
+  --dash-ink:#142438;--dash-soft:#607286;--dash-line:#DCE5ED;
+  --dash-canvas:#F4F7FA;--dash-card:#fff;--dash-blue:#087FE3;
+}
+body{color:var(--text);background:var(--bg);font-family:"Segoe UI",Inter,system-ui,-apple-system,sans-serif}
+
+/* Login: deliberately restrained geometry and one clear action. */
+#login-screen.bat-login-screen{background:linear-gradient(128deg,#050D18 0%,#0B1B2E 48%,#122A43 76%,#087FE3 150%)!important}
+.bat-login-screen::before,.bat-login-screen::after{display:none!important}
+.bat-login-layout{width:min(900px,calc(100% - 40px))!important;min-height:500px!important;border:1px solid #ffffff20!important;border-radius:12px!important;background:#fff!important;box-shadow:0 28px 80px #02091366!important;gap:0!important;padding:0!important}
+.bat-login-message{background:linear-gradient(158deg,#0B1B2E,#122A43)!important;padding:54px!important;min-height:500px!important;width:auto!important;filter:none!important}
+.bat-login-message::before,.bat-login-message::after{display:none!important}
+.bat-login-message img{width:72px!important;height:72px!important;border-radius:12px!important;padding:6px!important;background:#fff!important;box-shadow:none!important;margin:0 0 auto!important}
+.bat-login-message h1{font-size:34px!important;line-height:1.12!important;font-weight:750!important;letter-spacing:-.035em!important;margin:0 0 12px!important;max-width:310px!important}
+.bat-login-message p{font-size:14px!important;line-height:1.6!important;color:#B8CDDE!important;margin:0!important}
+.bat-login-card{padding:52px!important;max-width:none!important;box-shadow:none!important;animation:none!important;backdrop-filter:none!important}
+.bat-login-brand{justify-content:flex-start!important;gap:13px!important;margin-bottom:8px!important}
+.bat-login-brand img{width:44px!important;height:44px!important;background:#F2F7FB!important;padding:4px!important}
+.bat-login-brand span{font-size:11px!important;letter-spacing:.08em!important;color:#607286!important}
+.bat-login-brand strong{font-size:27px!important;letter-spacing:-.025em!important;color:#0B1B2E!important}
+.bat-login-helper{font-size:13px!important;color:#607286!important;margin:0 0 28px!important}
+.bat-login-field{margin-bottom:16px!important}.bat-login-field label{font-size:11px!important;font-weight:700!important;letter-spacing:.04em!important;color:#40546A!important}
+.bat-input-wrap{display:flex!important;align-items:center!important;gap:8px!important;height:44px!important;border:1px solid #C8D6E2!important;border-radius:7px!important;padding:0 12px!important;box-shadow:none!important;background:#fff!important}
+.bat-input-wrap:focus-within{border-color:#087FE3!important;box-shadow:0 0 0 3px #087fe31a!important}
+.bat-input-wrap input,.bat-input-wrap input:focus{flex:1!important;min-width:0!important;width:100%!important;height:42px!important;padding:0!important;border:0!important;outline:0!important;box-shadow:none!important;background:transparent!important;border-radius:0!important;font-size:13px!important;color:#142438!important}
+.bat-input-wrap svg{left:auto!important;top:auto!important;position:static!important;transform:none!important;flex:0 0 16px;color:#75879B!important}
+.bat-login-submit{height:44px!important;margin-top:10px!important;border-radius:7px!important;background:#087FE3!important;box-shadow:none!important;font-size:12px!important;letter-spacing:.06em!important}
+.bat-login-submit:hover{background:#0868BA!important;filter:none!important}.bat-login-meta{color:#8190A0!important;font-size:11px!important}.bat-login-meta a{color:#0868BA!important}
+
+/* Shell and navigation. The content moves with the expanded navigation. */
+#app-screen{background:#F4F7FA!important;padding-left:68px}
+.topbar{height:56px!important;min-height:56px!important;background:#fff!important;border-bottom:1px solid #DCE5ED!important;box-shadow:none!important;padding:0 20px!important}
+.topbar-right{gap:12px!important}.greeting{font-size:12px!important;font-weight:500!important;color:#607286!important}
+.icon-btn,.avatar{border:1px solid #DCE5ED!important;box-shadow:none!important}.icon-btn:hover{background:#F2F7FB!important}
+#workspace-nav{width:68px!important;background:#0B1B2E!important;box-shadow:none!important;border-right:1px solid #ffffff16!important}
+#workspace-nav:hover,#workspace-nav:focus-within{width:244px!important}
+.csr-side-brand{height:56px!important;min-height:56px!important;padding:8px 12px!important;border-color:#ffffff1c!important}.csr-side-brand img{width:36px!important;height:36px!important;border-radius:8px!important}.csr-side-brand b{font-weight:700!important;letter-spacing:-.015em!important}
+.csr-side-scroll{padding:14px 8px!important}.csr-nav-group{margin:2px 0!important}.csr-nav-item{height:40px!important;padding:0 14px!important;border-radius:6px!important;color:#B7C8D7!important;font-size:12px!important;font-weight:550!important;gap:14px!important}
+.csr-nav-item svg{width:18px!important;height:18px!important;stroke-width:1.8!important}.csr-nav-item:hover,.csr-nav-group.active>.csr-nav-item,.csr-nav-group.open>.csr-nav-item{background:#21415E!important;color:#fff!important}
+.csr-nav-children{padding:4px 4px 7px 43px!important}.csr-nav-children button{font-size:11.5px!important;color:#AFC3D3!important;padding:7px 6px!important}.csr-nav-children button:hover{background:#ffffff16!important;color:#fff!important}.csr-side-foot{border-color:#ffffff1c!important;color:#8FA6B8!important}
+@media(min-width:681px){#app-screen:has(#workspace-nav:hover),#app-screen:has(#workspace-nav:focus-within){padding-left:244px!important}}
+
+/* Consistent page hierarchy, form rhythm, and data density. */
+.page-header{min-height:64px!important;padding:18px 24px 10px!important;background:transparent!important;gap:10px!important}.page-header h1{font-size:22px!important;font-weight:700!important;letter-spacing:-.025em!important;color:#142438!important}.page-header svg{color:#087FE3!important}
+#view-root>main{padding:0 24px 28px!important}.panel,.section-card,.data-card,.record-card,.ops-card,.dashboard-rail-section,.role-metric-card{border:1px solid #DCE5ED!important;border-radius:8px!important;background:#fff!important;box-shadow:0 1px 3px #0b1b2e0b!important}
+.panel,.section-card,.data-card{padding:22px!important}.panel h2,.section-card h2,.data-card h2{color:#142438!important;letter-spacing:-.015em!important}
+.btn{border-radius:6px!important;letter-spacing:0!important;font-weight:650!important;box-shadow:none!important}.btn-primary{background:#087FE3!important;color:#fff!important}.btn-primary:hover{background:#0868BA!important;filter:none!important}.btn-secondary{background:#fff!important;color:#27435E!important;border:1px solid #C9D7E2!important}.btn-secondary:hover{background:#F2F7FB!important;filter:none!important}.btn-danger{background:#FFF0F4!important;color:#C7103B!important;border:1px solid #F9B9CA!important}.btn-success{background:#157A5C!important;color:#fff!important}
+.fgroup label{font-size:11.5px!important;font-weight:650!important;color:#40546A!important}.fgroup input,.fgroup select,.fgroup textarea,#app-screen input:not([type=checkbox]):not([type=radio]),#app-screen select,#app-screen textarea{border:1px solid #C8D6E2!important;border-radius:6px!important;box-shadow:none!important;background:#fff;color:#142438}
+#app-screen input:focus,#app-screen select:focus,#app-screen textarea:focus{border-color:#087FE3!important;outline:0!important;box-shadow:0 0 0 3px #087fe31a!important}
+table.users-table th{background:#F4F7FA!important;color:#50657A!important;border-bottom:1px solid #DCE5ED!important;font-size:10.5px!important;letter-spacing:.045em!important}table.users-table td{border-bottom:1px solid #E8EEF3!important}table.users-table tr:hover td{background:#F6FAFD!important}
+.badge,.status-pill{font-weight:650!important}.status-pill.pendente{background:#E9F5FD!important;color:#0868BA!important}.status-pill.tratado{background:#E5F5EF!important;color:#157A5C!important}
+
+/* Dashboard: same operational content, quieter presentation. */
+.role-dashboard-page{background:transparent!important;padding:24px!important}.role-dashboard-head{margin-bottom:22px!important}.role-dashboard-head::before{display:none!important}.role-dashboard-head>div>span,.section-eyebrow{color:#607286!important;font-size:10px!important;letter-spacing:.07em!important}.role-dashboard-head h1{font-size:27px!important;font-weight:740!important;letter-spacing:-.035em!important;color:#142438!important;margin:5px 0 0!important}.role-dashboard-head p{font-size:13px!important;color:#607286!important}
+.role-metric-grid{gap:12px!important;margin-bottom:0!important}.role-metric-card{min-height:116px!important;padding:18px!important;transition:border-color .15s,box-shadow .15s!important}.role-metric-card:hover{transform:none!important;border-color:#A7C2D8!important;box-shadow:0 3px 10px #0b1b2e12!important}.role-metric-label{font-size:10px!important;letter-spacing:.04em!important;color:#607286!important}.role-metric-card strong{font-size:29px!important;color:#142438!important}.role-metric-card small{color:#607286!important;font-size:11px!important}
+.csr-main-charts{gap:12px!important;margin-top:12px!important}.csr-chart-card{padding:20px!important}.csr-chart-row{font-size:11px!important}.csr-chart-row>i{background:#E7EDF2!important}.csr-donut{background:conic-gradient(#087FE3 var(--p),#13B5F4 0)!important}.csr-donut.empty{background:#E7EDF2!important}.csr-donut-legend i.open{background:#087FE3!important}.csr-donut-legend i.closed{background:#13B5F4!important}.dashboard-rail-section{margin-top:12px!important}
+
+/* Dark mode retains the same hierarchy and the supplied palette. */
+body.theme-dark{--navy:#0B1B2E;--navy-2:#122A43;--bg:#0B1B2E;--card:#122A43;--border:#2B4660;--text:#EAF3FA;--muted:#AFC2D1;--blue:#49A7F2;--blue-dark:#087FE3;--dash-ink:#EAF3FA;--dash-soft:#AFC2D1;--dash-line:#2B4660;--dash-canvas:#0B1B2E;--dash-card:#122A43;--dash-blue:#49A7F2;color-scheme:dark}
+body.theme-dark #app-screen,body.theme-dark .role-dashboard-page{background:#0B1B2E!important}body.theme-dark .topbar,body.theme-dark .panel,body.theme-dark .section-card,body.theme-dark .data-card,body.theme-dark .record-card,body.theme-dark .ops-card,body.theme-dark .dashboard-rail-section,body.theme-dark .role-metric-card{background:#122A43!important;border-color:#2B4660!important;color:#EAF3FA!important}
+body.theme-dark .page-header h1,body.theme-dark .role-dashboard-head h1,body.theme-dark .role-metric-card strong,body.theme-dark .panel h2,body.theme-dark .section-card h2{color:#EAF3FA!important}body.theme-dark .greeting,body.theme-dark .role-dashboard-head p,body.theme-dark .role-metric-label,body.theme-dark .role-metric-card small{color:#AFC2D1!important}
+body.theme-dark #app-screen input:not([type=checkbox]):not([type=radio]),body.theme-dark #app-screen select,body.theme-dark #app-screen textarea{background:#0D2034!important;border-color:#36516B!important;color:#EAF3FA!important}body.theme-dark .btn-secondary{background:#1C3954!important;color:#EAF3FA!important;border-color:#36516B!important}body.theme-dark table.users-table th{background:#18334D!important;color:#BDD0DE!important;border-color:#36516B!important}body.theme-dark table.users-table td{border-color:#2B4660!important}body.theme-dark .csr-chart-row>i,body.theme-dark .csr-donut.empty{background:#2B4660!important}body.theme-dark .csr-donut::after{background:#122A43!important}
+
+@media(max-width:900px){.bat-login-card{padding:34px!important}.bat-login-message{padding:34px!important}.page-header{padding:14px 18px 8px!important}#view-root>main{padding:0 18px 22px!important}}
+@media(max-width:680px){#app-screen{padding-left:0!important}.topbar{height:54px!important;min-height:54px!important;padding:0 12px!important}#workspace-nav{width:244px!important}.bat-login-layout{width:min(420px,calc(100% - 24px))!important;min-height:0!important}.bat-login-message{display:none!important}.bat-login-card{padding:32px 26px!important}.page-header{min-height:58px!important;padding:12px 14px 8px!important}.page-header h1{font-size:20px!important}#view-root>main{padding:0 14px 20px!important}.panel,.section-card,.data-card{padding:16px!important}.form-grid.two{grid-template-columns:1fr!important}.role-dashboard-page{padding:18px 14px!important}.role-dashboard-head h1{font-size:23px!important}.role-metric-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}.csr-main-charts{grid-template-columns:1fr!important}}

@@ -1,0 +1,36 @@
+/* V5.3 — navegação superior com módulos em cascata. */
+.workspace-nav-dropdown{overflow:visible}
+.workspace-nav-cascade{position:relative;width:100%}
+.workspace-nav-cascade:after{content:"";position:absolute;left:100%;top:0;width:10px;height:100%}
+.workspace-nav-parent{position:relative;padding-right:34px!important}
+.workspace-nav-arrow{position:absolute;right:11px;top:50%;transform:translateY(-50%);font-size:18px;line-height:1;color:var(--dash-soft);transition:transform .16s,color .16s}
+.workspace-nav-cascade:hover>.workspace-nav-parent .workspace-nav-arrow,
+.workspace-nav-cascade:focus-within>.workspace-nav-parent .workspace-nav-arrow,
+.workspace-nav-cascade.sub-open>.workspace-nav-parent .workspace-nav-arrow{transform:translate(2px,-50%);color:var(--dash-blue)}
+.workspace-nav-submenu{position:absolute;left:calc(100% + 8px);top:50%;width:260px;max-height:min(430px,calc(100vh - 132px));overflow:auto;padding:7px;background:#fff;border:1px solid var(--dash-line);border-radius:13px;box-shadow:0 18px 44px rgba(20,32,65,.17);opacity:0;visibility:hidden;pointer-events:none;transform:translate(-5px,-50%);transition:opacity .14s,transform .14s,visibility .14s;z-index:95}
+.workspace-nav-submenu:before{content:"";position:absolute;right:100%;top:0;width:10px;height:100%}
+.workspace-nav-subitem{width:100%;min-height:40px;display:flex!important;align-items:center;gap:11px;padding:8px 10px!important;border-radius:8px;text-align:left!important;color:#5f667b!important;font-size:12px!important;font-weight:650!important}
+.workspace-nav-subitem svg{width:17px;height:17px;flex:0 0 auto}
+.workspace-nav-subitem:hover,.workspace-nav-subitem:focus-visible,.workspace-nav-subitem.active{background:#edf3ff!important;color:var(--dash-blue)!important;outline:none}
+.workspace-nav-cascade.sub-open>.workspace-nav-submenu{opacity:1;visibility:visible;pointer-events:auto;transform:translate(0,-50%)}
+
+@media (hover:hover) and (pointer:fine){
+  .workspace-nav-cascade:hover>.workspace-nav-submenu,
+  .workspace-nav-cascade:focus-within>.workspace-nav-submenu{opacity:1;visibility:visible;pointer-events:auto;transform:translate(0,-50%)}
+}
+
+body.theme-dark .workspace-nav-submenu{background:#182235;border-color:#2b3850;box-shadow:0 18px 48px rgba(0,0,0,.38)}
+body.theme-dark .workspace-nav-subitem{color:#c0c9da!important}
+body.theme-dark .workspace-nav-subitem:hover,
+body.theme-dark .workspace-nav-subitem:focus-visible,
+body.theme-dark .workspace-nav-subitem.active{background:#223453!important;color:#8bb0ff!important}
+
+@media(max-width:680px){
+  .workspace-nav-dropdown{max-height:calc(100vh - 124px);overflow:auto}
+  .workspace-nav-cascade:after{display:none}
+  .workspace-nav-submenu{position:static;width:auto;max-height:none;margin:3px 0 7px 27px;padding:4px;border-radius:10px;box-shadow:none;transform:none!important;display:none;opacity:1;visibility:visible;pointer-events:auto}
+  .workspace-nav-cascade.sub-open>.workspace-nav-submenu{display:block}
+  .workspace-nav-subitem{min-height:37px}
+  .workspace-nav-arrow{transform:translateY(-50%) rotate(90deg)}
+  .workspace-nav-cascade.sub-open>.workspace-nav-parent .workspace-nav-arrow{transform:translateY(-50%) rotate(-90deg)}
+}

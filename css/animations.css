@@ -1,0 +1,108 @@
+:root {
+  --motion-fast: 140ms;
+  --motion-normal: 220ms;
+  --motion-ease: cubic-bezier(.2, .8, .2, 1);
+}
+
+.page.active,
+.modal-overlay.show .modal-card,
+.drawer-overlay.show .drawer,
+.record-card,
+.menu-card {
+  animation: bat-enter var(--motion-normal) var(--motion-ease) both;
+}
+
+.btn,
+.menu-card,
+.record-card,
+.choice-card {
+  transition: transform var(--motion-fast) var(--motion-ease), box-shadow var(--motion-fast) var(--motion-ease), background-color var(--motion-fast) ease;
+}
+
+.btn:active,
+.menu-card:active,
+.choice-card:active {
+  transform: translateY(1px);
+}
+
+.route-loading {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+}
+
+.route-loading::before {
+  content: "";
+  width: 15px;
+  height: 15px;
+  border: 2px solid #cbd5e1;
+  border-top-color: #173f78;
+  border-radius: 50%;
+  animation: bat-spin .75s linear infinite;
+}
+
+.route-map-canvas {
+  width: 100%;
+  height: 360px;
+  min-height: 0;
+  max-height: 360px;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.route-map-card {
+  width: 100%;
+  height: 382px;
+  min-height: 0;
+  max-height: 382px;
+  padding: 10px !important;
+  overflow: hidden;
+}
+
+/* Leaflet fallback: mantém o mapa funcional mesmo quando o CSS do CDN é bloqueado. */
+
+@media (max-width: 850px) {
+  .route-map-canvas {
+    height: 290px;
+    max-height: 290px;
+  }
+
+  .route-map-card {
+    height: 312px;
+    max-height: 312px;
+  }
+}
+
+.route-alerts {
+  display: grid;
+  gap: 6px;
+  margin-top: 12px;
+}
+
+.route-alerts p {
+  margin: 0;
+  padding: 9px 11px;
+  border: 1px solid #f3d19c;
+  border-radius: 9px;
+  background: #fffaf0;
+  color: #854d0e;
+  font-size: 12px;
+}
+
+@keyframes bat-enter {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes bat-spin {
+  to { transform: rotate(360deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: .01ms !important;
+  }
+}

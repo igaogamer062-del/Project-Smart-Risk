@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<title>Central Smart Risk</title>
+<link rel="stylesheet" href="css/styles.css?v=20260906.1">
+<link rel="stylesheet" href="css/animations.css?v=20260905.5">
+<link rel="stylesheet" href="css/dashboard-modern.css?v=20260908.2">
+<link rel="stylesheet" href="css/v5-2-enhancements.css?v=20260911.1">
+<link rel="stylesheet" href="css/v5-3-navigation.css?v=20260911.2">
+<link rel="stylesheet" href="css/central-smart-risk.css?v=3">
+<link rel="stylesheet" href="css/design-polish.css?v=1">
+<link rel="stylesheet" href="css/workspace-v58.css?v=58"><link rel="stylesheet" href="css/flows-v59.css?v=59"><link rel="stylesheet" href="css/review-v510.css?v=510.1"></head>
+<body>
+
+<!-- ============ LOGIN SCREEN ============ -->
+<div id="login-screen" class="bat-login-screen">
+  <div class="bat-login-shape bat-shape-top" aria-hidden="true"></div>
+  <div class="bat-login-shape bat-shape-bottom" aria-hidden="true"></div>
+  <div class="bat-login-layout">
+    <div class="login-card bat-login-card">
+      <div class="login-brand bat-login-brand">
+        <img src="images/central-smart-risk.png" alt="Central Smart Risk">
+        <div>
+          <span>Central Smart Risk</span>
+          <strong>Entrar</strong>
+        </div>
+      </div>
+      <p class="bat-login-helper">Acesse sua conta operacional</p>
+      <div class="login-error" id="login-error">Usuário ou senha inválidos.</div>
+      <form id="login-form" autocomplete="off">
+        <div class="field bat-login-field">
+          <label for="login-user">Usuário</label>
+          <div class="bat-input-wrap">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>
+            <input type="text" id="login-user" name="bat-gr-usuario" placeholder="Digite seu usuário" autocomplete="off" autocapitalize="none" spellcheck="false">
+          </div>
+        </div>
+        <div class="field bat-login-field">
+          <label for="login-pass">Senha</label>
+          <div class="bat-input-wrap">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>
+            <input type="password" id="login-pass" placeholder="Digite sua senha" autocomplete="new-password">
+          </div>
+        </div>
+        <button type="submit" class="btn btn-primary btn-block bat-login-submit">ENTRAR</button>
+      </form>
+      <div class="login-meta bat-login-meta">Seu IP: <span id="user-ip">—</span> · <a id="forgot-link">Esqueceu sua senha</a></div>
+      <section id="temporary-password-panel" class="temporary-password-panel" hidden>
+        <div class="temporary-password-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/><path d="M12 14v2"/></svg>
+        </div>
+        <h2>Crie sua nova senha</h2>
+        <p>A senha informada pelo administrador é temporária. Escolha uma senha definitiva para continuar.</p>
+        <div class="login-error" id="temporary-password-error"></div>
+        <form id="temporary-password-form" autocomplete="off">
+          <div class="field bat-login-field">
+            <label for="temporary-password-value">Nova senha</label>
+            <input type="password" id="temporary-password-value" minlength="8" required autocomplete="new-password" placeholder="Mínimo de 8 caracteres">
+          </div>
+          <div class="field bat-login-field">
+            <label for="temporary-password-confirm">Confirmar nova senha</label>
+            <input type="password" id="temporary-password-confirm" minlength="8" required autocomplete="new-password" placeholder="Digite novamente">
+          </div>
+          <button type="submit" class="btn btn-primary btn-block bat-login-submit" id="temporary-password-submit">SALVAR NOVA SENHA</button>
+        </form>
+      </section>
+    </div>
+    <aside class="bat-login-message">
+      <img src="images/central-smart-risk.png" alt="Central Smart Risk">
+      <h1>Bem-vindo de volta!</h1>
+      <p>Acesse sua conta para continuar na Central Smart Risk.</p>
+    </aside>
+  </div>
+</div>
+
+<!-- ============ APP SCREEN ============ -->
+<div id="app-screen">
+  <header class="topbar">
+    <div class="topbar-left">
+      <button class="csr-mobile-menu" id="csr-mobile-menu" aria-label="Abrir menu">☰</button>
+      <div class="brand-mini" data-nav="menu">
+        <img src="images/central-smart-risk.png" alt="Central Smart Risk">
+        <div class="brand-text">Central<br>Smart Risk</div>
+      </div>
+    </div>
+    <div class="topbar-right">
+      <span class="greeting" id="greeting-text">Bom dia!</span>
+      <button class="icon-btn theme-toggle" id="theme-toggle" title="Alternar modo claro/escuro" aria-label="Alternar modo claro/escuro"></button>
+      <div class="v54-notif-wrap"><button class="icon-btn" id="notif-button" type="button" aria-label="Notificações" title="Notificações"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"/><path d="M10 21h4"/></svg><span id="notif-badge" style="display:none"></span></button><div class="v54-notif-dropdown" id="notif-dropdown"><div class="v54-notif-head"><strong>Notificações</strong><div><button type="button" id="notif-read-all" class="link-btn">Marcar todas como lidas</button><button type="button" id="notif-close" aria-label="Fechar">×</button></div></div><div id="notif-list"></div></div></div>
+      <div style="position:relative;">
+        <button class="avatar" id="avatar-btn">Y</button>
+        <div class="avatar-menu" id="avatar-menu">
+          <a id="profile-menu-link"><span aria-hidden="true">◯</span> Alteração de perfil</a>
+          <hr>
+          <a id="logout-link"><span aria-hidden="true">↪</span> Sair</a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <nav class="workspace-nav" id="workspace-nav" aria-label="Navegação principal"></nav>
+
+  <div id="view-root"></div><button class="notes-fab" id="notes-fab" title="Minhas anotações">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 3h9l5 5v13a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z"/><path d="M14 3v5h5"/><path d="M8 13h8M8 17h5"/></svg>
+  </button>
+
+  <button class="tools-launcher" id="tools-launcher" title="Ferramentas rápidas" aria-label="Abrir ferramentas rápidas">•••<span class="tools-badge" id="tools-badge">0</span></button>
+  <div class="tools-menu" id="tools-menu">
+    <button class="tool-option" id="tool-notes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 3h9l5 5v13a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z"/><path d="M14 3v5h5M8 13h8M8 17h5"/></svg>Anotações</button>
+    <button class="tool-option" id="tool-ai"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3a7 7 0 0 0-7 7v4l-2 3h18l-2-3v-4a7 7 0 0 0-7-7z"/><path d="M9 10h.01M15 10h.01M9 14c2 2 4 2 6 0"/></svg>Assistente operacional</button>
+  </div>
+
+  <div class="ai-float-panel" id="ai-float-panel"><div class="chat-panel-head"><b>Assistente operacional</b><button id="ai-float-close">&times;</button></div><div class="ai-messages" id="ai-float-messages"></div><div class="ai-float-input"><textarea id="ai-float-text" placeholder="Explique a situação..."></textarea><button id="ai-float-send">Enviar</button></div></div>
+
+  <div class="notes-panel" id="notes-panel">
+    <div class="notes-panel-head">
+      <b>Minhas anotações</b>
+      <button id="notes-close">&times;</button>
+    </div>
+    <div class="tab-switch">
+      <button class="tab-btn active" data-notetab="livre">Livre</button>
+      <button class="tab-btn" data-notetab="placa">Por placa</button>
+    </div>
+    <div class="notes-panel-body">
+      <div id="notetab-livre" class="tab-pane">
+        <p class="hint-text" style="margin-top:0;">Anote livremente — salva automaticamente. Só você vê isso.</p>
+        <textarea id="fnote-free-text" rows="10" placeholder="Escreva qualquer coisa..."></textarea>
+      </div>
+      <div id="notetab-placa" class="tab-pane" style="display:none;">
+        <div class="fgroup" style="margin-bottom:10px;"><label>Placa</label><input type="text" id="fnote-placa"></div>
+        <div style="display:flex;gap:8px;margin-bottom:10px;">
+          <div class="fgroup" style="flex:1;"><label>Data</label><input type="date" id="fnote-data"></div>
+          <div class="fgroup" style="flex:1;"><label>Hora</label><input type="time" id="fnote-hora"></div>
+        </div>
+        <div class="fgroup" style="margin-bottom:10px;"><label>Descrição</label><textarea id="fnote-desc" rows="2"></textarea></div>
+        <button class="btn btn-sm" style="background:var(--orange);color:#fff;width:100%;" id="fnote-add-btn">+ Adicionar anotação</button>
+        <div id="fnotes-list" style="margin-top:14px;"></div>
+      </div>
+    </div>
+  </div><template id="tpl-menu">
+    <main class="role-dashboard-page"><section class="role-dashboard" id="role-dashboard"></section></main>
+  </template><template id="tpl-perfil">
+    <div class="page-header">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>
+      <h1>Alteração de perfil</h1>
+      <button class="back-btn" data-back>← Voltar</button>
+    </div>
+    <main>
+      <div class="panel">
+        <h2>Alteração de perfil</h2>
+        <form id="perfil-form">
+          <div style="display:flex;align-items:center;gap:14px;margin-bottom:18px;"><div id="pf-photo-preview" style="width:72px;height:72px;border-radius:50%;background:#e9ecf4 center/cover;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:800;color:var(--blue);"></div><div><b style="font-size:13px;">Foto de perfil</b><div class="actions-row" style="margin-top:7px"><input type="file" id="pf-photo" accept="image/jpeg,image/png,image/webp,image/gif" hidden><button type="button" class="btn btn-secondary btn-sm" id="pf-photo-add">Adicionar/alterar</button><button type="button" class="btn btn-danger btn-sm" id="pf-photo-remove">Remover</button></div><small style="color:var(--muted)">Imagem compartilhada de até 5 MB.</small></div></div>
+          <div class="form-grid profile-self-grid">
+            <div class="fgroup"><label>Nome de usuário</label><input type="text" id="pf-usuario" required autocomplete="off"></div>
+          </div>
+          <div class="actions-row">
+            <button type="submit" class="btn btn-success">Salvar</button>
+            <button type="button" class="btn btn-secondary" data-back>Cancelar</button>
+          </div>
+        </form>
+      </div>
+    </main>
+  </template>
+
+  <template id="tpl-permissoes">
+    <div class="page-header">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l8 4v6c0 5-3.5 8.5-8 10-4.5-1.5-8-5-8-10V6l8-4z"/></svg>
+      <h1>Permissões</h1>
+      <button class="back-btn" data-back>← Voltar</button>
+    </div>
+    <main>
+      <div class="permissions-shell">
+        <section id="permission-hub">
+          <div class="module-home-head"><h2>Gerenciamento de permissões</h2><p>Escolha qual configuração deseja acessar.</p></div>
+          <div class="module-choice-grid permission-choice-grid">
+            <button class="module-choice" data-permission-choice="users"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="m17 11 2 2 4-4"/></svg><b>Permissões por usuário</b><span>Configure acessos específicos para cada colaborador.</span></button>
+            <button class="module-choice" data-permission-choice="profiles"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l8 4v6c0 5-3.5 8.5-8 10-4.5-1.5-8-5-8-10V6l8-4z"/><path d="M9 12l2 2 4-4"/></svg><b>Perfis cadastrados</b><span>Defina as permissões padrão de cada função de acesso.</span></button>
+          </div>
+        </section>
+      <div class="panel permission-editor" id="permission-users-pane" style="display:none">
+        <div class="subpage-toolbar"><button class="subpage-back" data-permission-home>← Voltar às opções de permissões</button><h2>Editar permissões do usuário</h2></div>
+        <div class="fgroup" style="margin-bottom:14px;">
+          <label>Usuário</label>
+          <select id="perm-user-select"></select>
+        </div>
+        <div class="fgroup" style="margin-bottom:14px;">
+          <label>Função de acesso</label>
+          <select id="perm-funcao-select"><option>Operador</option><option>Lider</option><option>Supervisor</option><option>Coordenador</option><option>Gerente</option><option>Administrador</option></select>
+        </div>
+        <p class="hint-text">A função aplica permissões padrão. Você pode marcar ou desmarcar permissões específicas para este usuário.</p>
+        <div class="perm-list" id="perm-list"></div>
+        <div class="actions-row">
+          <button class="btn btn-success" id="perm-save">Salvar</button>
+          <button class="btn btn-secondary" data-permission-home>Cancelar</button>
+        </div>
+      </div>
+      <div class="panel permission-editor" id="permission-profiles-pane" style="display:none">
+        <div class="subpage-toolbar"><button class="subpage-back" data-permission-home>← Voltar às opções de permissões</button><h2>Perfis cadastrados</h2><span class="profiles-count" id="profiles-count"></span></div>
+        <p class="hint-text">Configure o acesso padrão aplicado automaticamente aos novos usuários.</p>
+        <div class="profile-defaults-layout"><div id="profile-defaults-list" class="profile-defaults-list"></div><div id="profile-defaults-editor" class="profile-defaults-editor"><div class="empty-state">Selecione um perfil para configurar.</div></div></div>
+      </div>
+      </div>
+    </main>
+  </template>
+
+  <template id="tpl-dashboard">
+    <main class="role-dashboard-page"><section class="role-dashboard" id="role-dashboard"></section></main>
+  </template>
+
+  <template id="tpl-ocorrencia">
+    <div class="page-header">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2 1 21h22L12 2z"/><path d="M12 9v5M12 17h.01"/></svg>
+      <h1>Gerar descritivo</h1>
+      <button class="back-btn" data-back>← Voltar</button>
+    </div>
+    <main>
+      <div class="panel">
+        <h2>Dados do descritivo</h2>
+        <div class="form-grid">
+          <div class="fgroup"><label>Nome do condutor *</label><input type="text" id="oc-nome" required></div>
+          <div class="fgroup"><label>Número do condutor *</label><input type="text" id="oc-numero" required></div>
+          <div class="fgroup"><label>SM *</label><input type="text" id="oc-sm" required></div>
+          <div class="fgroup"><label>Rota *</label><input type="text" id="oc-rota" required></div>
+          <div class="fgroup span-all"><label>Local (link do Google Maps) *</label><input type="url" id="oc-local" required></div>
+          <div class="fgroup"><label>Via de contato</label>
+            <select id="oc-via">
+              <option value="">Selecione</option>
+              <option>WhatsApp</option><option>Ligação</option><option>Mensagem</option>
+            </select>
+          </div>
+          <div class="fgroup"><label>Tipo de alerta</label>
+            <select id="oc-tipo"><option value="">Selecione</option></select>
+          </div>
+          <div class="fgroup"><label>O alerta se refere a</label><select id="oc-referencia"><option>Veículo</option><option>Condutor</option></select></div>
+          <div class="fgroup"><label>Consegui contato com o condutor</label>
+            <select id="oc-contato">
+              <option value="">Selecione</option>
+              <option>Sim</option><option>Não</option>
+            </select>
+          </div>
+          <div class="fgroup" id="oc-situacao-wrap" style="display:none;"><label>Situação do veículo</label>
+            <select id="oc-situacao">
+              <option value="">Selecione</option>
+              <option>Movimento</option><option>Parado</option>
+            </select>
+          </div>
+          <div class="fgroup span-all" id="oc-extra-wrap" style="display:none;"><label>Informação extra <span style="font-weight:400;color:var(--muted);">(opcional)</span></label>
+            <input type="text" id="oc-info" placeholder="Ex: condutor confirmou parada para descanso">
+          </div>
+        </div>
+        <label style="display:flex;align-items:center;gap:8px;margin-top:6px;font-size:13px;font-weight:700;color:#3c4262;">
+          <input type="checkbox" id="oc-gestao" style="width:16px;height:16px;accent-color:var(--blue);"> Gestão ciente
+        </label>
+        <div class="actions-row">
+          <button class="btn" style="background:var(--orange);color:#fff;" id="oc-gerar">Gerar descritivo</button>
+          <button class="btn btn-secondary" id="oc-copiar">Copiar texto</button>
+        </div>
+        <div class="fgroup" style="margin-top:18px;">
+          <label>Descritivo gerado</label>
+          <textarea id="ocorrencia-output" rows="12"></textarea>
+        </div>
+      </div>
+    </main>
+  </template>
+
+  <template id="tpl-assistente">
+    <div class="page-header"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3a7 7 0 0 0-7 7v4l-2 3h18l-2-3v-4a7 7 0 0 0-7-7z"/><path d="M9 21h6M9 9h.01M15 9h.01M9 13c2 2 4 2 6 0"/></svg><h1>Assistente Operacional</h1><button class="back-btn" data-back>← Voltar</button></div>
+    <main><div class="ops-shell ai-modern"><aside class="ops-side"><h3>Assistente operacional</h3><button class="ops-nav active" data-ai-tab="chat">Conversa operacional<small>Orientação e tratativas</small></button><button class="ops-nav" data-ai-tab="config">Alimentar assistente<small>Base de conhecimento</small></button><button class="ops-nav" data-ai-tab="manuals">Manuais tecnologias<small>Procedimentos de desbloqueio</small></button></aside><div class="ops-main">
+      <section id="ai-tab-chat"><div class="ops-head"><div><h2>Assistente operacional</h2><p class="hint-text" style="margin:3px 0 0">Assistente para organizar tratativas — decisões críticas continuam com a equipe.</p></div><button class="btn btn-secondary btn-sm" id="ai-new-chat">Nova conversa</button></div><div class="quick-chips"><button class="quick-chip">Me ajude com um alerta</button><button class="quick-chip">Qual procedimento devo seguir?</button><button class="quick-chip">Me ajude a fazer uma tratativa</button><button class="quick-chip">Resuma essa situação</button></div><div class="ai-chat"><div class="ai-messages" id="ai-messages"></div><div class="ai-compose"><input type="file" id="ai-attach" hidden><button class="btn btn-secondary" id="ai-attach-btn" title="Anexar arquivo">📎</button><textarea id="ai-input" placeholder="Explique a situação naturalmente..."></textarea><button class="btn btn-primary" id="ai-send">Enviar</button></div></div></section>
+      <section id="ai-tab-config" style="display:none"><div class="ops-head"><div><h2>Alimentar assistente</h2><p class="hint-text" style="margin:3px 0 0">Cadastre procedimentos oficiais usados nas respostas operacionais.</p></div></div><div class="panel" style="max-width:100%;margin-bottom:14px"><h3>Instruções personalizadas</h3><textarea id="ai-instructions" rows="6" style="width:100%" placeholder="Cadastre procedimentos oficiais e particularidades..."></textarea><div class="actions-row"><button class="btn btn-success" id="ai-save-instructions">Salvar instruções</button></div></div><div class="panel" style="max-width:100%;margin-bottom:14px"><h3>Arquivos da base de conhecimento</h3><input type="file" id="ai-kb-file" accept=".pdf,.docx,.txt,.xlsx,.csv"><button class="btn btn-primary btn-sm" id="ai-kb-add">Adicionar arquivo</button><div id="ai-kb-list" style="margin-top:10px"></div></div><div class="panel" style="max-width:100%"><h3>Converse para preparar uma instrução</h3><textarea id="ai-admin-draft" rows="3" style="width:100%"></textarea><div class="actions-row"><button class="btn btn-secondary" id="ai-propose">Preparar instrução</button><button class="btn btn-success" id="ai-confirm-rule" style="display:none">Adicionar à base</button></div><div id="ai-proposal" class="preview-box" style="display:none;margin-top:10px"></div></div></section>
+      <section id="ai-tab-manuals" style="display:none"></section>
+    </div></div></main>
+  </template>
+
+  <template id="tpl-central-ocorrencias">
+    <div class="page-header"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2 1 21h22L12 2z"/><path d="M12 9v5M12 17h.01"/></svg><h1>Alertas</h1><button class="back-btn" data-back>← Voltar</button></div>
+    <main><div class="fr-toolbar"><button type="button" class="btn btn-secondary" id="occ-back">← Voltar para página anterior</button><button class="btn btn-primary" id="occ-new">+ Novo alerta</button></div><div class="panel" id="occ-list-panel" style="max-width:100%"><div class="fr-filter-grid"><input id="occ-search" placeholder="Buscar por placa, SM, condutor ou responsável..."><select id="occ-base-filter"></select><select id="occ-status-filter"><option value="">Todos os status</option><option>Pendente</option><option>Tratado</option></select><input type="date" id="occ-date-filter"></div><div style="overflow:auto"><table class="users-table"><thead><tr><th>Data/Hora</th><th>Base</th><th>Placa / SM</th><th>Condutor</th><th>Alerta</th><th>Responsável</th><th>Status</th><th>Ações</th></tr></thead><tbody id="occ-tbody"></tbody></table></div></div><div class="panel" id="occ-form-panel" style="display:none;max-width:900px"><div class="ops-head"><h2 id="occ-form-title">Novo alerta</h2><button class="btn btn-secondary" id="occ-form-close">← Voltar para página anterior</button></div><form id="occ-form"><input type="hidden" id="occ-id"><div class="form-grid two"><div class="fgroup"><label>Base *</label><input id="occ-base" required></div><div class="fgroup"><label>Placa *</label><input id="occ-placa" required></div><div class="fgroup"><label>SM</label><input id="occ-sm"></div><div class="fgroup"><label>Condutor</label><input id="occ-condutor"></div><div class="fgroup"><label>Data *</label><input type="date" id="occ-date" required></div><div class="fgroup"><label>Hora *</label><input type="time" id="occ-time" required></div><div class="fgroup span-all"><label>Descrição do alerta *</label><textarea id="occ-description" required></textarea></div><div class="fgroup span-all"><label>Tratativa realizada</label><textarea id="occ-treatment"></textarea></div><div class="fgroup"><label>Tipo</label><select id="occ-kind"><option>Operacional</option><option>Problema mecânico</option><option>Comunicação</option><option>Risco</option><option>Outros</option></select></div></div><div class="actions-row"><button class="btn btn-success">Salvar alerta</button></div></form></div></main>
+  </template>
+
+<template id="tpl-efetivo"><div class="page-header"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="8" cy="8" r="3"/><circle cx="17" cy="9" r="2.5"/><path d="M2 20c0-4 3-6 6-6s6 2 6 6M14 15c3 0 6 1.5 6 5"/></svg><h1>Efetivo</h1><button class="back-btn" data-back>← Voltar</button></div><main><div id="efetivo-v2-root"></div></main></template>
+<template id="tpl-passagem">
+    <div class="page-header"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 7h11l-3-3M17 17H6l3 3"/><path d="M18 7l-3 3M6 17l3-3"/></svg><h1>Passagem de Plantão</h1><button class="back-btn" data-back>← Voltar</button></div><main><div class="module-tabs"><button class="module-tab active" data-shift-tab="create">Fazer passagem<small>Monte e envie o próximo turno</small></button><button class="module-tab" data-shift-tab="received">Passagens recebidas<small>Consulte o que chegou para você</small></button><button class="module-tab" data-shift-tab="history">Histórico<small>Pesquise passagens anteriores</small></button></div><section id="shift-create"><div class="shift-layout"><div><div class="shift-section"><h3>1. Seleção da base e data</h3><div class="form-grid two"><div class="fgroup"><label>Base *</label><input id="shift-base"></div><div class="fgroup"><label>Data do plantão *</label><input type="date" id="shift-date"></div></div><div class="shift-action-cards" style="margin-top:12px"><button class="shift-action-card" id="shift-pull">📄 Puxar problemas atuais<small>Busca alertas pendentes da base e data</small></button><button class="shift-action-card" id="shift-add-manual">☑ Adicionar manualmente<small>Inclua uma alerta fora da lista</small></button></div></div><div class="shift-section"><h3>2. Alertas para passagem</h3><div id="shift-items"></div></div><div class="shift-section"><h3>3. Observações gerais do plantão</h3><textarea id="shift-notes" rows="4" style="width:100%" placeholder="Informações adicionais, orientações e contatos importantes..."></textarea></div></div><aside><div class="shift-section shift-summary"><h3>Resumo da passagem</h3><div id="shift-live-summary" class="fr-summary-row"><span>Alertas incluídas</span><b>0</b></div><div class="fgroup" style="margin-top:12px"><label>Operador que receberá *</label><select id="shift-to"></select></div><div class="fgroup" style="margin-top:10px"><label>Usuários em cópia</label><select id="shift-cc" multiple size="4"></select></div><div class="fgroup shift-email"><label>Enviar também por e-mail</label><input type="email" id="shift-email" placeholder="email@empresa.com"></div><div class="actions-row"><button class="btn btn-secondary" id="shift-preview-btn">Visualizar prévia</button><button class="btn btn-success" id="shift-send">Enviar passagem</button></div></div></aside></div><div id="shift-preview" class="preview-box" style="display:none;margin-top:14px"></div></section><section id="shift-received" style="display:none"><div class="panel" style="max-width:100%"><div class="ops-head"><div><h2>Passagens recebidas</h2><p class="hint-text" style="margin:3px 0 0">Confira as passagens enviadas para você</p></div></div><div class="fr-filter-grid" style="grid-template-columns:2fr 1fr 1fr"><input id="shift-received-search" placeholder="Buscar por base, remetente ou data..."><select id="shift-received-status"><option value="">Todos os status</option><option>Enviado</option><option>Lido</option></select><button class="btn btn-secondary" id="shift-received-clear">Limpar</button></div><div id="shift-received-list"></div></div></section><section id="shift-history" style="display:none"><div class="panel" style="max-width:100%"><div class="ops-head"><div><h2>Histórico de passagens</h2><p class="hint-text" style="margin:3px 0 0">Registros enviados e recebidos permanecem disponíveis</p></div></div><div class="field" style="max-width:620px;margin-bottom:14px"><input id="shift-search" placeholder="Pesquisar por operador, base ou destinatário..."></div><div id="shift-history-list"></div></div></section></main>
+  </template><template id="tpl-checklist">
+    <div class="page-header"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg><h1>Checklist veicular</h1><button class="back-btn" data-back>← Voltar</button></div>
+    <main><div id="checklist-root"></div></main>
+  </template>
+
+  <template id="tpl-sinistro"><div class="page-header"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 3h9l5 5v13H6z"/><path d="M14 3v5h5M8 13h8M8 17h5"/></svg><h1>Sinistro</h1><button class="back-btn" data-back>← Voltar</button></div><main><div id="sinistro-v2-root"></div></main></template>
+
+  <template id="tpl-pronta-resposta">
+    <div class="page-header">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="7" width="15" height="11" rx="2"/><path d="M16 10h4l3 4v4h-7"/><circle cx="6" cy="18.5" r="1.8"/><circle cx="18.5" cy="18.5" r="1.8"/></svg>
+      <h1>Pronta resposta</h1>
+      <button class="back-btn" data-back>← Voltar</button>
+    </div>
+    <main>
+      <div class="panel" style="max-width:100%;">
+        <div class="pr-head-row">
+          <div>
+            <h2 style="margin-bottom:2px;">Pronta Resposta</h2>
+            <p class="hint-text" style="margin:0;">Equipes acionadas e seu status.</p>
+          </div>
+          <div class="pr-head-actions">
+            <button class="btn btn-secondary btn-sm" id="pr-export">⬇ Excel</button>
+            <button class="btn btn-primary" id="pr-nova-btn">+ Nova pronta resposta</button>
+          </div>
+        </div>
+
+        <div class="pr-filter-row">
+          <div class="field" style="margin:0;flex:1;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+            <input type="text" id="pr-search" placeholder="Buscar por placa, SM, solicitante, motivo ou operação...">
+          </div>
+          <select id="pr-status-filter" style="width:180px;">
+            <option value="">Todos status</option>
+            <option>Em deslocamento</option>
+            <option>Em preservação</option>
+            <option>Finalizada</option>
+            <option>Cancelada</option>
+          <option>Acionada</option><option>No local</option><option>Em atendimento</option><option>Encerrada</option></select>
+        </div>
+
+        <div style="overflow-x:auto;">
+          <table class="users-table">
+            <thead>
+              <tr><th>Data/Hora</th><th>Placa</th><th>SM</th><th>Solicitante</th><th>Motivo</th><th>Operação</th><th>Status</th><th>Ações</th></tr>
+            </thead>
+            <tbody id="pr-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+  </template>
+
+  <template id="tpl-ferias">
+    <div class="page-header">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>
+      <h1>Férias</h1>
+      <button class="back-btn" data-back>← Voltar</button>
+    </div>
+    <main>
+      <!-- LIST VIEW -->
+      <div id="fr-list-view">
+        <div class="fr-toolbar">
+          <div class="fr-tabs" id="fr-tabs">
+            <button class="fr-tab active" data-fr-tab="overview">Visão geral</button>
+            <button class="fr-tab" data-fr-tab="calendar">Calendário</button>
+            <button class="fr-tab" data-fr-tab="people">Colaboradores</button>
+            <button class="fr-tab" data-fr-tab="bases">Bases</button>
+            <button class="fr-tab" data-fr-tab="history">Histórico</button>
+          </div>
+          <div class="pr-head-actions">
+            <button class="btn btn-secondary btn-sm" id="fr-export-excel">⬇ Excel</button>
+            <button class="btn btn-secondary btn-sm" id="fr-export-pdf">⬇ PDF</button>
+            <button class="btn btn-primary" id="fr-novo-btn">+ Nova programação</button>
+          </div>
+        </div>
+
+        <section id="fr-pane-overview" class="fr-pane">
+          <div class="fr-kpis" id="fr-kpis"></div>
+          <div class="fr-dashboard-grid">
+            <div>
+              <div class="panel" style="max-width:100%;margin-bottom:16px;"><div class="pr-head-row"><div><h2 style="margin:0;">Próximas férias</h2><p class="hint-text" style="margin:3px 0 0;">Planejamento dos próximos 30 dias</p></div></div><div style="overflow-x:auto;"><table class="users-table"><thead><tr><th>Colaborador</th><th>Função</th><th>Base</th><th>Início</th><th>Término</th><th>Status</th></tr></thead><tbody id="fr-upcoming-tbody"></tbody></table></div></div>
+              <div class="panel" style="max-width:100%;"><h2>Minha equipe e cobertura</h2><div class="fr-team-stats" id="fr-team-stats"></div><div id="fr-team-chart" style="margin-top:14px;"></div></div>
+            </div>
+            <div>
+              <div class="panel" style="max-width:100%;margin-bottom:16px;"><h2>Alertas de concentração</h2><div id="fr-alerts"></div></div>
+              <div class="panel" style="max-width:100%;"><h2>Férias por mês</h2><div id="fr-month-chart"></div></div>
+              <div class="panel" id="fr-config-panel" style="display:none;"><input type="checkbox" id="fr-approval-enabled"></div>
+            </div>
+          </div>
+        </section>
+
+        <section id="fr-pane-calendar" class="fr-pane" style="display:none;">
+          <div class="panel" style="max-width:100%;"><div class="fr-calendar-head"><div class="pr-head-actions"><button class="btn btn-secondary btn-sm" id="fr-cal-prev">←</button><button class="btn btn-secondary btn-sm" id="fr-cal-today">Hoje</button><button class="btn btn-secondary btn-sm" id="fr-cal-next">→</button></div><h2 id="fr-cal-title" style="margin:0;"></h2><div class="tab-switch" style="margin:0;"><button class="tab-btn" data-cal-view="day">Dia</button><button class="tab-btn" data-cal-view="week">Semana</button><button class="tab-btn active" data-cal-view="month">Mês</button></div></div><div id="fr-calendar"></div></div>
+        </section>
+
+        <section id="fr-pane-people" class="fr-pane" style="display:none;">
+          <div class="panel" style="max-width:100%;"><div class="fr-filter-grid"><input id="fr-search" placeholder="Pesquisar colaborador por nome..."><select id="fr-base-filter"></select><select id="fr-cargo-filter"></select><select id="fr-gestor-filter"></select><select id="fr-status-filter"></select><select id="fr-month-filter"></select></div><div style="overflow-x:auto;"><table class="users-table"><thead><tr><th>Colaborador</th><th>Função / Base</th><th>Gestor</th><th>Período</th><th>Dias</th><th>Status</th><th>Ações</th></tr></thead><tbody id="fr-tbody"></tbody></table></div></div>
+        </section>
+
+        <section id="fr-pane-bases" class="fr-pane" style="display:none;"><div class="panel" style="max-width:100%;"><div class="pr-head-row"><div><h2>Visão por base</h2><p class="hint-text" style="margin:2px 0 0;">Distribuição e impacto operacional</p></div><select id="fr-base-view-filter" style="min-width:220px;"></select></div><div class="fr-kpis" id="fr-base-kpis" style="margin-top:16px;"></div><div class="fr-dashboard-grid"><div><h3>Férias por base</h3><div id="fr-base-chart"></div></div><div><h3>Férias por cargo</h3><div id="fr-role-chart"></div></div></div></div></section>
+
+        <section id="fr-pane-history" class="fr-pane" style="display:none;"><div class="panel" style="max-width:100%;"><h2>Histórico de férias</h2><div style="overflow-x:auto;"><table class="users-table"><thead><tr><th>Data/Hora</th><th>Colaborador</th><th>Período</th><th>Usuário</th><th>Alteração</th><th>Status</th></tr></thead><tbody id="fr-history-tbody"></tbody></table></div></div></section>
+      </div>
+
+      <!-- FORM VIEW -->
+      <div id="fr-form-view" style="display:none;">
+        <div class="breadcrumb-fr">Gestão <span>›</span> Férias <span>›</span> <b id="fr-form-crumb">Nova programação</b></div>
+        <div class="fr-form-head">
+          <div class="fr-form-head-left">
+            <div class="fr-form-icon">📅</div>
+            <div>
+              <h2 id="fr-form-title" style="margin:0;">Nova programação de férias</h2>
+              <p class="hint-text" style="margin:2px 0 0;">Cadastre ou programe as férias de um operador</p>
+            </div>
+          </div>
+          <div class="fr-form-head-actions">
+            <button type="button" class="btn btn-secondary" id="fr-form-cancel">✕ Cancelar</button>
+            <button type="submit" form="fr-form" class="btn btn-primary">✓ Salvar programação</button>
+          </div>
+        </div>
+
+        <form id="fr-form">
+        <input type="hidden" id="fm-id">
+        <div class="fr-form-grid">
+          <div class="fr-form-main">
+            <div class="panel">
+              <h3 class="fr-section-title">👤 Informações do operador</h3>
+              <div class="form-grid two">
+                <div class="fgroup"><label>Operador *</label>
+                  <select id="fm-operador" required><option value="">Selecione o operador</option></select>
+                  <span class="hint-text" style="margin:2px 0 0;">Busque pelo nome ou matrícula</span>
+                </div>
+                <div class="fgroup"><label>Matrícula *</label>
+                  <input type="text" id="fm-matricula" readonly placeholder="Preenchimento automático">
+                  <span class="hint-text" style="margin:2px 0 0;">Preenchimento automático ao selecionar o operador</span>
+                </div>
+                <div class="fgroup"><label>Gestor responsável *</label>
+                  <select id="fm-gestor" required><option value="">Selecione o gestor</option></select>
+                  <span class="hint-text" style="margin:2px 0 0;">Gestor responsável pela equipe</span>
+                </div>
+                <div class="fgroup"><label>Data de contratação</label>
+                  <input type="text" id="fm-data-contratacao" readonly placeholder="Preenchimento automático">
+                  <span class="hint-text" style="margin:2px 0 0;">Vem do cadastro do operador</span>
+                </div>
+              </div>
+              <div class="fr-periodo-aquisitivo-card" id="fr-periodo-aquisitivo-card">
+                <b>📅 Período aquisitivo</b>
+                <div id="fr-periodo-aquisitivo-text">Selecione um operador com data de contratação cadastrada.</div>
+              </div>
+            </div>
+
+            <div class="panel" style="margin-top:16px;">
+              <h3 class="fr-section-title">📅 Período de férias</h3>
+              <div class="form-grid" style="grid-template-columns:repeat(3,1fr);">
+                <div class="fgroup"><label>Mês de férias *</label>
+                  <select id="fm-mes-ferias" required></select>
+                  <span class="hint-text" style="margin:2px 0 0;">Mês em que as férias serão usufruídas</span>
+                </div>
+                <div class="fgroup"><label>Data de início *</label>
+                  <input type="date" id="fm-data-inicio" required>
+                  <span class="hint-text" style="margin:2px 0 0;">Primeiro dia de férias</span>
+                </div>
+                <div class="fgroup"><label>Data de término *</label>
+                  <input type="date" id="fm-data-termino" required>
+                  <span class="hint-text" style="margin:2px 0 0;">Último dia de férias</span>
+                </div>
+              </div>
+              <div class="fr-duracao-card">
+                <b>Duração das férias</b>
+                <div id="fr-duracao-text">— dias corridos</div>
+              </div>
+            </div>
+
+            <div class="panel" style="margin-top:16px;">
+              <div class="fgroup">
+                <label>📝 Observações <span style="font-weight:400;color:var(--muted);">(opcional)</span></label>
+                <textarea id="fm-obs" rows="3" maxlength="255" placeholder="Adicione observações sobre esta programação de férias..."></textarea>
+                <span class="hint-text" id="fm-obs-counter" style="margin:2px 0 0;">0/255 caracteres</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="fr-form-side">
+            <div class="panel fr-summary-panel">
+              <h3 class="fr-section-title">📋 Resumo da programação</h3>
+              <div class="fr-summary-row"><span>Operador</span><b id="fr-sum-operador">—</b></div>
+              <div class="fr-summary-row"><span>Matrícula</span><b id="fr-sum-matricula">—</b></div>
+              <div class="fr-summary-row"><span>Período aquisitivo</span><b id="fr-sum-aquisitivo">—</b></div>
+              <div class="fr-summary-row"><span>Período de férias</span><b id="fr-sum-periodo">—</b></div>
+              <div class="fr-summary-row"><span>Duração</span><b id="fr-sum-duracao">— dias</b></div>
+              <div class="fr-summary-row"><span>Status</span><span class="badge" id="fr-sum-status">Programada</span></div>
+            </div>
+            <div class="fr-important-box">
+              <b>⚠ Importante</b>
+              <p>Este registro é informativo e ajuda a gestão a planejar a cobertura da equipe durante o período.</p>
+            </div>
+          </div>
+        </div>
+        </form>
+      </div>
+    </main>
+    <div class="fr-detail" id="fr-detail"><div class="fr-detail-card"><div class="pr-head-row"><h2 id="fr-detail-title" style="margin:0;">Detalhes das férias</h2><button class="modal-close" id="fr-detail-close" style="position:static;">&times;</button></div><div id="fr-detail-body"></div><div class="actions-row" id="fr-detail-actions"></div></div></div>
+  </template>
+
+  <template id="tpl-logs">
+    <div class="page-header">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h10"/></svg>
+      <h1>Logs do sistema</h1>
+      <button class="back-btn" data-back>← Voltar</button>
+    </div>
+    <main>
+      <div id="logs-hub" class="logs-hub"><div class="choice-hub-intro"><h2>Qual histórico deseja consultar?</h2><p class="hint-text">Abra uma categoria por vez para manter a leitura mais limpa.</p></div><div class="config-card-grid"><button class="config-card" data-log-choice="acessos"><span class="config-card-icon">↪</span><span><b>Acessos</b><small>Entradas, saídas e páginas consultadas.</small></span></button><button class="config-card" data-log-choice="alteracoes"><span class="config-card-icon">✎</span><span><b>Alterações realizadas</b><small>Ações e registros modificados no sistema.</small></span></button><button class="config-card" data-log-choice="perfil"><span class="config-card-icon">◎</span><span><b>Mudanças de perfil</b><small>Histórico dos dados dos colaboradores.</small></span></button></div></div>
+      <div class="panel" id="logs-content" style="display:none;max-width:100%;"><button class="subpage-back" id="logs-home">← Voltar às opções de logs</button>
+
+        <div id="logtab-acessos" class="tab-pane">
+          <div id="logs-list"></div>
+        </div>
+
+        <div id="logtab-alteracoes" class="tab-pane" style="display:none;">
+          <div class="pr-filter-row">
+            <div class="field" style="margin:0;flex:1;">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+              <input type="text" id="alt-search" placeholder="Buscar por tipo ou detalhe...">
+            </div>
+            <select id="alt-tipo-filter" style="width:200px;"></select>
+            <select id="alt-autor-filter" style="width:200px;"></select>
+          </div>
+          <div style="overflow-x:auto;">
+            <table class="users-table">
+              <thead><tr><th>Data/Hora</th><th>Realizado por</th><th>Tipo</th><th>Detalhe</th></tr></thead>
+              <tbody id="alt-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div id="logtab-perfil" class="tab-pane" style="display:none;">
+          <div class="pr-filter-row">
+            <select id="pf-log-user-filter" style="flex:1;"></select>
+            <select id="pf-log-autor-filter" style="flex:1;"></select>
+            <select id="pf-log-campo-filter" style="width:180px;"></select>
+          </div>
+          <div style="overflow-x:auto;">
+            <table class="users-table">
+              <thead><tr><th>Data/Hora</th><th>Usuário alterado</th><th>Realizado por</th><th>Campo</th><th>De</th><th>Para</th></tr></thead>
+              <tbody id="pf-log-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </main>
+  </template>
+
+  <template id="tpl-config-abas"><div class="page-header"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19 13.5v-3l-2-.7-.7-1.7.9-1.9-2.1-2.1-1.9.9-1.7-.7-.7-2h-3l-.7 2-1.7.7-1.9-.9-2.1 2.1.9 1.9-.7 1.7-2 .7v3l2 .7.7 1.7-.9 1.9 2.1 2.1 1.9-.9 1.7.7.7 2h3l.7-2 1.7-.7 1.9.9 2.1-2.1-.9-1.9.7-1.7z"/></svg><h1>Configurações de abas</h1><button class="back-btn" data-back>← Voltar</button></div><main><div id="config-abas-v2-root"></div></main></template>
+
+  <template id="tpl-config-bases"><div class="page-header"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21h18M5 21V8l7-5 7 5v13M9 21v-6h6v6"/></svg><h1>Configurações de bases</h1><button class="back-btn" data-back>← Voltar</button></div><main><div id="base-config-root"></div></main></template>
+
+  <template id="tpl-usuarios">
+    <div class="page-header">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c0-3.5 3-6 6.5-6s6.5 2.5 6.5 6"/><circle cx="18" cy="7" r="2.5"/><path d="M15.5 12.2c2.6.3 4.5 2.3 4.5 5.3"/></svg>
+      <h1>Usuários</h1>
+      <button class="back-btn" data-back>← Voltar</button>
+    </div>
+    <main>
+      <div class="panel" style="max-width:1180px;">
+        <div class="users-hero"><div><h2>Usuários cadastrados</h2><p class="hint-text" style="margin:0">Localize colaboradores e gerencie seus acessos.</p></div><button class="btn btn-primary user-create-btn" id="novo-usuario-btn">＋ Criar novo usuário</button></div>
+        <div class="users-filters"><input id="users-search" placeholder="Pesquisar por nome, usuário ou e-mail..."><select id="users-cargo-filter"><option value="">Todas as funções</option></select><select id="users-funcao-filter"><option value="">Todas as funções</option><option>Operador</option><option>Lider</option><option>Supervisor</option><option>Coordenador</option><option>Gerente</option><option>Administrador</option><option>Cliente</option></select><select id="users-base-filter"><option value="">Todas as bases</option></select></div>
+        <div style="overflow-x:auto"><table class="users-table">
+          <thead><tr><th>Colaborador</th><th>Usuário / e-mail</th><th>Função</th><th>Base</th><th>Ações</th></tr></thead>
+          <tbody id="users-tbody"></tbody>
+        </table></div>
+      </div>
+    </main>
+  </template>
+
+</div>
+
+<div class="modal-overlay" id="user-modal-overlay">
+  <div class="modal">
+    <button class="modal-close" id="user-modal-close">&times;</button>
+    <h3 id="user-modal-title">Novo usuário</h3>
+    <form id="user-modal-form">
+      <input type="hidden" id="um-id">
+      <div class="form-grid two">
+        <div class="fgroup"><label>Nome completo</label><input type="text" id="um-nome" required></div>
+        <div class="fgroup"><label>Usuário</label><input type="text" id="um-usuario" required></div>
+        <input type="hidden" id="um-matricula">
+        <div class="fgroup"><label>E-mail</label><input type="email" id="um-email" required></div>
+        <div class="fgroup"><label>Senha</label><input type="password" id="um-senha" minlength="8" required autocomplete="new-password"></div>
+        <select hidden id="um-cargo"><option>Operador</option><option>Lider</option><option>Supervisor</option><option>Coordenador</option><option>Gerente</option><option>Administrador</option><option>Cliente</option></select>
+        <div class="fgroup"><label>Função de acesso</label>
+          <select id="um-funcao"><option>Operador</option><option>Lider</option><option>Supervisor</option><option>Coordenador</option><option>Gerente</option><option>Administrador</option><option>Cliente</option></select>
+        </div>
+        <div class="fgroup" id="um-base-group"><label>Base pertencente *</label><select id="um-unidade"></select></div>
+        <div class="fgroup" id="um-transporter-group" hidden><label>Transportadora vinculada *</label><select id="um-transporter"><option value="">Selecione a transportadora</option></select></div>
+        <input type="hidden" id="um-data-contratacao">
+        <div class="fgroup" id="um-manager-group"><label>Gestor responsável *</label>
+          <select id="um-manager"><option value="">Selecione o gestor</option></select>
+        </div>
+        <div class="fgroup span-all"><label>Observação</label><textarea id="um-obs"></textarea></div>
+        <div class="notif-settings" id="um-notif-settings">
+          <div class="notif-settings-head">
+            <input type="checkbox" id="um-notif-enabled">
+            <label for="um-notif-enabled">Habilitar notificações para este colaborador</label>
+          </div>
+          <div class="notif-settings-body">
+            <div class="notif-option">
+              <input type="checkbox" id="um-notif-sinistro" data-notif-option>
+              <label for="um-notif-sinistro"><span>Novos sinistros</span><small>Receber aviso quando um novo sinistro for registrado.</small></label>
+            </div>
+            <div class="notif-option">
+              <input type="checkbox" id="um-notif-ferias" data-notif-option>
+              <label for="um-notif-ferias"><span>Férias e prazos</span><small>Receber avisos sobre programação de férias e prazos próximos.</small></label>
+            </div>
+            <div class="notif-option">
+              <input type="checkbox" id="um-notif-sistema" data-notif-option>
+              <label for="um-notif-sistema"><span>Avisos do sistema</span><small>Receber comunicados gerais e mensagens administrativas.</small></label>
+            </div>
+            <div class="notif-option">
+              <input type="checkbox" id="um-notif-alertas" data-notif-option>
+              <label for="um-notif-alertas"><span>Alertas operacionais</span><small>Receber solicitações, respostas e escalonamentos de alertas.</small></label>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="actions-row">
+        <button type="submit" class="btn btn-success" id="user-modal-submit">Salvar usuário</button>
+        <button type="button" class="btn btn-secondary" id="user-modal-cancel">Cancelar</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="modal-overlay" id="password-reset-modal">
+  <div class="modal-card password-reset-card">
+    <div class="modal-head">
+      <div><h2>Criar senha temporária</h2><p id="password-reset-target">Informe uma senha temporária para o usuário.</p></div>
+      <button type="button" id="password-reset-close" aria-label="Fechar">&times;</button>
+    </div>
+    <form id="password-reset-form">
+      <input type="hidden" id="password-reset-user-id">
+      <div class="fgroup"><label>Senha temporária *</label><input type="password" id="password-reset-value" minlength="8" required autocomplete="new-password" placeholder="Mínimo de 8 caracteres"></div>
+      <div class="fgroup"><label>Confirmar senha temporária *</label><input type="password" id="password-reset-confirm" minlength="8" required autocomplete="new-password" placeholder="Digite a senha novamente"></div>
+      <p class="password-reset-note">No próximo acesso, o usuário será obrigado a criar uma nova senha pessoal antes de entrar no sistema.</p>
+      <div class="actions-row">
+        <button type="button" class="btn btn-secondary" id="password-reset-cancel">Cancelar</button>
+        <button type="submit" class="btn btn-primary" id="password-reset-submit">Salvar senha temporária</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="modal-overlay" id="pr-modal-overlay">
+  <div class="modal">
+    <button class="modal-close" id="pr-modal-close">&times;</button>
+    <h3>Nova pronta resposta</h3>
+    <form id="pr-modal-form">
+      <input type="hidden" id="pm-id">
+      <div class="form-grid two">
+        <div class="fgroup"><label>Data e hora</label><input type="datetime-local" id="pm-datetime" required></div>
+        <div class="fgroup"><label>SM</label><input type="text" id="pm-sm" placeholder="SM-00000"></div>
+        <div class="fgroup"><label>Solicitante</label><select id="pm-solicitante" required></select></div>
+        <div class="fgroup"><label>Pronta resposta</label><input id="pm-pronta" placeholder="Nome da equipe ou prestador"></div>
+        <div class="fgroup"><label>Placa</label><input type="text" id="pm-cavalo" required placeholder="ABC1D23"></div>
+        <div class="fgroup"><label>Motorista</label><input id="pm-motorista" placeholder="Nome do motorista"></div>
+        <div class="fgroup"><label>CPF do motorista</label><input id="pm-cpf" placeholder="000.000.000-00"></div>
+        <div class="fgroup"><label>Transportadora</label><select id="pm-transportadora"></select></div>
+        <div class="fgroup"><label>Tecnologia</label><select id="pm-tecnologia"></select></div>
+        <div class="fgroup"><label>Operação</label><select id="pm-operacao"></select></div>
+        <div class="fgroup span-all"><label>Valor total da carga</label><input id="pm-valor" placeholder="R$ 0,00"></div>
+        <div class="fgroup"><label>UF</label><select id="pm-uf"><option value="">Selecione o estado</option><option>AC</option><option>AL</option><option>AP</option><option>AM</option><option>BA</option><option>CE</option><option>DF</option><option>ES</option><option>GO</option><option>MA</option><option>MT</option><option>MS</option><option>MG</option><option>PA</option><option>PB</option><option>PR</option><option>PE</option><option>PI</option><option>RJ</option><option>RN</option><option>RS</option><option>RO</option><option>RR</option><option>SC</option><option>SP</option><option>SE</option><option>TO</option></select></div>
+        <div class="fgroup"><label>Cidade</label><input id="pm-cidade" placeholder="Digite a cidade"></div>
+        <div class="fgroup"><label>1º Motivo</label><select id="pm-motivo"></select></div>
+        <div class="fgroup"><label>2º Motivo <span style="font-weight:400;color:var(--muted)">(opcional)</span></label><select id="pm-motivo2"></select></div>
+        <div class="fgroup span-all"><label>Quem autorizou</label><input id="pm-autorizou" required placeholder="Digite o nome de quem autorizou"></div>
+        <div class="fgroup"><label>Status</label>
+          <select id="pm-status">
+            <option>Em deslocamento</option>
+            <option>Em preservação</option>
+            <option>Finalizada</option>
+            <option>Cancelada</option>
+          <option>Acionada</option><option>No local</option><option>Em atendimento</option><option>Encerrada</option></select>
+        </div>
+        <div class="fgroup span-all"><label>Observação</label><textarea id="pm-obs" rows="3"></textarea></div>
+      </div>
+      <div class="actions-row">
+        <button type="button" class="btn btn-secondary" id="pr-modal-cancel">Cancelar</button>
+        <button type="submit" class="btn" style="background:var(--orange);color:#fff;">Salvar</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/manuals-data.js?v=20260905.4"></script>
+<script src="js/config.js?v=20260905.4"></script>
+
+<script src="js/upgrade-v54.js?v=2"></script>
+<script src="js/operational-rules.js?v=58"></script><script src="js/workspace-v58.js?v=58"></script><script src="js/flows-v59.js?v=510"></script><script src="js/app.js?v=510"></script>
+</body>
+</html>
+
+
