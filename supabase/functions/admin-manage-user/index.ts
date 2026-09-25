@@ -131,7 +131,7 @@ Deno.serve(async (request) => {
       hire_date: body.hire_date || null,
       notes: String(body.notes || "").trim() || null,
       notifications_enabled: body.notifications_enabled !== false,
-      notification_preferences: body.notification_preferences || { sinistro: true, ferias: true, sistema: true, alertas: true },
+      notification_preferences: body.notification_preferences || { sinistro: true, ferias: true, sistema: true, alertas: true, chamados: true },
     };
     Object.keys(profileChanges).forEach((key) => profileChanges[key] === undefined && delete profileChanges[key]);
     const profileResult = await admin.from("profiles").update(profileChanges).eq("id", targetId).select("*").single();

@@ -18,6 +18,8 @@
 <link rel="stylesheet" href="css/flows-v59.css?v=59">
 <link rel="stylesheet" href="css/review-v510.css?v=510.1">
 <link rel="stylesheet" href="css/corporate-v511.css?v=511.0">
+<link rel="stylesheet" href="css/support-v512.css?v=512.0">
+<link rel="stylesheet" href="css/alerts-v513.css?v=513.0">
 </head>
 <body>
 
@@ -543,7 +545,15 @@
 
   <template id="tpl-config-abas"><div class="page-header"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19 13.5v-3l-2-.7-.7-1.7.9-1.9-2.1-2.1-1.9.9-1.7-.7-.7-2h-3l-.7 2-1.7.7-1.9-.9-2.1 2.1.9 1.9-.7 1.7-2 .7v3l2 .7.7 1.7-.9 1.9 2.1 2.1 1.9-.9 1.7.7.7 2h3l.7-2 1.7-.7 1.9.9 2.1-2.1-.9-1.9.7-1.7z"/></svg><h1>Configurações de abas</h1><button class="back-btn" data-back>← Voltar</button></div><main><div id="config-abas-v2-root"></div></main></template>
 
+  <template id="tpl-config-alertas"><div class="page-header"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2 1 21h22L12 2z"/><path d="M12 9v5M12 17h.01"/></svg><h1>Configuração de alertas</h1><button class="back-btn" data-back>← Voltar</button></div><main><div id="alert-config-root"></div></main></template>
+
   <template id="tpl-config-bases"><div class="page-header"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21h18M5 21V8l7-5 7 5v13M9 21v-6h6v6"/></svg><h1>Configurações de bases</h1><button class="back-btn" data-back>← Voltar</button></div><main><div id="base-config-root"></div></main></template>
+
+  <template id="tpl-ramais"><div class="page-header"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 2 .7 2.9a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.2-1.2a2 2 0 0 1 2.1-.5c.9.3 1.9.6 2.9.7a2 2 0 0 1 1.7 2z"/></svg><h1>Ramais das bases</h1><button class="back-btn" data-back>← Voltar</button></div><main><div id="base-extensions-root"></div></main></template>
+
+  <template id="tpl-abrir-chamado"><div class="page-header"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a4 4 0 0 1-4 4H8l-5 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z"/><path d="M8 8h8M8 12h5"/></svg><h1>Abertura de chamados</h1><button class="back-btn" data-back>← Voltar</button></div><main><div id="support-request-root"></div></main></template>
+
+  <template id="tpl-chamados"><div class="page-header"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16v16H4z"/><path d="M4 14h5l2 3h2l2-3h5"/></svg><h1>Chamados recebidos</h1><button class="back-btn" data-back>← Voltar</button></div><main><div id="support-management-root"></div></main></template>
 
   <template id="tpl-usuarios">
     <div class="page-header">
@@ -609,6 +619,10 @@
             <div class="notif-option">
               <input type="checkbox" id="um-notif-alertas" data-notif-option>
               <label for="um-notif-alertas"><span>Alertas operacionais</span><small>Receber solicitações, respostas e escalonamentos de alertas.</small></label>
+            </div>
+            <div class="notif-option">
+              <input type="checkbox" id="um-notif-chamados" data-notif-option>
+              <label for="um-notif-chamados"><span>Novos chamados</span><small>Receber aviso quando um usuário abrir um chamado de suporte.</small></label>
             </div>
           </div>
         </div>
@@ -691,7 +705,7 @@
 <script src="js/operational-rules.js?v=58"></script>
 <script src="js/workspace-v58.js?v=511.0"></script>
 <script src="js/flows-v59.js?v=511.1"></script>
-<script src="js/app.js?v=511.1"></script>
+<script src="js/app.js?v=513.0"></script>
 </body>
 </html>
 

@@ -109,7 +109,55 @@ test('simulador do integrador exige administrador e não expõe segredo no front
   assert.match(app, /functions\.invoke\("tracking-test-provider"/);
   assert.doesNotMatch(app, /TRACKING_INGEST_SECRET/);
   assert.match(provider, /profile\.data\?\.access_role === "Administrador"/);
-  assert.match(app, /register_tracking_occurrence_result/);
-  assert.match(app, /Tratativa incorreta/);
-  assert.match(app, /Tratativa correta/);
+  assert.doesNotMatch(app, /data-tracking-occurrence/);
+  assert.doesNotMatch(app, /id="tracking-occurrence-result"/);
+});
+
+test('alertas usam painel operacional e criticidade fica em configuração separada', () => {
+  const app = fs.readFileSync(path.join(root, 'js/app.js'), 'utf8');
+  const html = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
+  const guide = fs.readFileSync(path.join(root, 'js/workspace-v58.js'), 'utf8');
+  assert.match(app, /id:"config-alertas"/);
+  assert.match(app, /function renderAlertConfiguration/);
+  assert.match(app, /alerts-workspace/);
+  assert.match(app, /data-alert-pane="integrator"/);
+  assert.match(app, /data-alert-pane="manual"/);
+  assert.match(app, /tracking-alert-severity/);
+  assert.match(html, /id="tpl-config-alertas"/);
+  assert.match(html, /alerts-v513\.css/);
+  assert.match(guide, /'config-alertas'/);
+});
+
+test('configurações de abas voltam a administrar as listas gerais', () => {
+  const app = fs.readFileSync(path.join(root, 'js/app.js'), 'utf8');
+  assert.match(app, /function renderConfigAbas/);
+  assert.match(app, /key:"plantoes"/);
+  assert.match(app, /key:"transferenciaMotivos"/);
+  assert.match(app, /key:"clientes"/);
+  assert.match(app, /key:"sinistroTipos"/);
+  assert.match(app, /key:"tecnologias"/);
+  assert.match(app, /data-config-section/);
+});
+
+test('ramais usam bases e permitem pesquisa por transportadora', () => {
+  const app = fs.readFileSync(path.join(root, 'js/app.js'), 'utf8');
+  const sql = fs.readFileSync(path.join(root, 'supabase/005_support_and_extensions.sql'), 'utf8');
+  assert.match(sql, /create table if not exists public\.base_extensions/);
+  assert.match(sql, /base_id uuid not null references public\.operational_bases/);
+  assert.match(app, /function transporterNames\(baseId\)/);
+  assert.match(app, /extension-search/);
+  assert.match(app, /row\.transporters/);
+});
+
+test('chamados possuem abertura, fila autorizável e notificações individuais', () => {
+  const app = fs.readFileSync(path.join(root, 'js/app.js'), 'utf8');
+  const html = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
+  const sql = fs.readFileSync(path.join(root, 'supabase/005_support_and_extensions.sql'), 'utf8');
+  assert.match(app, /id:"abrir-chamado"[\s\S]*perm:"abrirChamado"/);
+  assert.match(app, /id:"chamados"[\s\S]*perm:"chamados"/);
+  assert.match(sql, /create or replace function public\.create_support_ticket/);
+  assert.match(sql, /profile_has_permission\(p\.id,'chamados'\)/);
+  assert.match(sql, /notification_preferences->>'chamados'/);
+  assert.match(html, /id="um-notif-chamados"/);
+  assert.match(app, /rpc\('manage_support_ticket'/);
 });

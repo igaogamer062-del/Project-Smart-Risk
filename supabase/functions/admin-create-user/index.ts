@@ -58,7 +58,7 @@ Deno.serve(async (request) => {
       manager_id: accessRole === "Cliente" ? null : body.manager_id,
       hire_date: body.hire_date || null, notes: String(body.notes || "").trim() || null,
       active: true, notifications_enabled: body.notifications_enabled !== false,
-      notification_preferences: body.notification_preferences || { sinistro: true, ferias: true, sistema: true, alertas: true },
+      notification_preferences: body.notification_preferences || { sinistro: true, ferias: true, sistema: true, alertas: true, chamados: true },
     };
     Object.keys(profile).forEach((key) => profile[key] === undefined && delete profile[key]);
     const saved = await admin.from("profiles").upsert(profile).select("*").single();

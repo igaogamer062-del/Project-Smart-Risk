@@ -20,12 +20,26 @@ Deno.serve(async (request) => {
   if (!authorized) return json({ error: "Não autorizado" }, 401);
   try {
     const override = await request.json().catch(() => ({}));
+    let transporterId = override.transporter_id || null;
+    let baseId = override.base_id || null;
+    if (!transporterId && override.transporter_name) {
+      const transporter = await db.from("transporters").select("id")
+        .ilike("name", String(override.transporter_name).trim()).maybeSingle();
+      if (transporter.error) throw transporter.error;
+      transporterId = transporter.data?.id || null;
+    }
+    if (!baseId && override.base_name) {
+      const base = await db.from("operational_bases").select("id")
+        .ilike("name", String(override.base_name).trim()).maybeSingle();
+      if (base.error) throw base.error;
+      baseId = base.data?.id || null;
+    }
     const sample = new TestTrackingProvider().toSmartRiskEvent({
       provider_event_id: override.provider_event_id || crypto.randomUUID(),
       vehicle: override.vehicle || { plate: "ABC1D23" },
       driver: override.driver || { name: "Condutor de teste" },
-      transporter_id: override.transporter_id || null,
-      base_id: override.base_id || null,
+      transporter_id: transporterId,
+      base_id: baseId,
       event_type: override.event_type || "PANIC_BUTTON",
       event_time: override.event_time || new Date().toISOString(),
       latitude: override.latitude ?? -23.5505,
