@@ -142,11 +142,16 @@ test('configurações de abas voltam a administrar as listas gerais', () => {
 test('ramais usam bases e permitem pesquisa por transportadora', () => {
   const app = fs.readFileSync(path.join(root, 'js/app.js'), 'utf8');
   const sql = fs.readFileSync(path.join(root, 'supabase/005_support_and_extensions.sql'), 'utf8');
+  const permissionSql = fs.readFileSync(path.join(root, 'supabase/006_extension_management_permission.sql'), 'utf8');
   assert.match(sql, /create table if not exists public\.base_extensions/);
   assert.match(sql, /base_id uuid not null references public\.operational_bases/);
   assert.match(app, /function transporterNames\(baseId\)/);
   assert.match(app, /extension-search/);
-  assert.match(app, /row\.transporters/);
+  assert.match(app, /data-extension-pane="search"/);
+  assert.match(app, /data-extension-pane="manage"/);
+  assert.match(app, /ramais_manage/);
+  assert.match(permissionSql, /authorized users manage extensions/);
+  assert.match(permissionSql, /user_has_permission\('ramais_manage'\)/);
 });
 
 test('chamados possuem abertura, fila autorizável e notificações individuais', () => {
@@ -160,4 +165,8 @@ test('chamados possuem abertura, fila autorizável e notificações individuais'
   assert.match(sql, /notification_preferences->>'chamados'/);
   assert.match(html, /id="um-notif-chamados"/);
   assert.match(app, /rpc\('manage_support_ticket'/);
+  assert.match(app, /function openSupportTicketDetails/);
+  assert.match(app, /Descrição da solicitação/);
+  assert.match(app, /function generateSupportTicket/);
+  assert.match(app, /data-ticket-generate/);
 });
