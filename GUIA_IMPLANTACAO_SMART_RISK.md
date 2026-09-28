@@ -131,35 +131,11 @@ Abra **Administração > Configurações de abas > Configuração de alertas do 
 
 Cada mapeamento guarda fornecedor, código externo, transportadora opcional, tipo normalizado, severidade, prioridade, geração de alerta, necessidade de tratamento e uso opcional da Groq. Cadastre somente códigos presentes na documentação do integrador ou do simulador externo.
 
-## 11. Conectar um simulador externo
+## 11. Conectar o simulador externo
 
-Configure o simulador externo para enviar `POST` para:
+Cadastre `TRACKING_PROVIDER_BASE_URL` e `TRACKING_PROVIDER_API_KEY` nos Secrets do Supabase. Publique a função `tracking-provider-poll` e agende sua execução no servidor. O passo a passo e os endpoints usados estão em `INTEGRACAO_SIMULADOR_LOVABLE.md`.
 
-```text
-https://zeswbeivbxayksihitfv.supabase.co/functions/v1/tracking-ingest
-```
-
-Envie o header abaixo somente a partir do backend do simulador:
-
-```text
-x-tracking-secret: O_MESMO_TRACKING_INGEST_SECRET
-```
-
-E um corpo com IDs reais cadastrados:
-
-```json
-{
-  "provider": "CODIGO_DOCUMENTADO_DO_SIMULADOR",
-  "provider_event_id": "ID_UNICO_DO_EVENTO",
-  "event_type": "CODIGO_DOCUMENTADO_DO_EVENTO",
-  "event_time": "2026-09-28T12:00:00Z",
-  "vehicle": { "plate": "ABC1D23" },
-  "transporter_id": "UUID_DA_TRANSPORTADORA",
-  "base_id": "UUID_DA_BASE"
-}
-```
-
-Repetir o mesmo `provider_event_id` não cria outro alerta. Eventos sem mapeamento ativo são guardados para auditoria e não viram alerta operacional. O SmartRisk não precisa ficar aberto no navegador para receber os eventos.
+A função consulta ocorrências e veículos, normaliza os dados e envia cada evento ao `tracking-ingest`. Repetir o mesmo identificador não cria outro alerta. O SmartRisk não precisa ficar aberto no navegador.
 
 ## 12. Ativar o workflow a cada 10 minutos
 

@@ -125,6 +125,20 @@ test('PGR e instruções de IA são vinculados à transportadora', () => {
   assert.match(ingest, /Conhecimento específico da transportadora/);
 });
 
+test('polling do Lovable consulta API protegida e encaminha eventos idempotentes', () => {
+  const poller = fs.readFileSync(path.join(root, 'supabase/functions/tracking-provider-poll/index.ts'), 'utf8');
+  const sql = fs.readFileSync(path.join(root, 'supabase/008_lovable_provider_polling.sql'), 'utf8');
+  const config = fs.readFileSync(path.join(root, 'supabase/config.toml'), 'utf8');
+  assert.match(poller, /TRACKING_PROVIDER_BASE_URL/);
+  assert.match(poller, /TRACKING_PROVIDER_API_KEY/);
+  assert.match(poller, /\/api\/public\/v1\/occurrences\?status=aberta&limit=100/);
+  assert.match(poller, /x-api-key/);
+  assert.match(poller, /provider_event_id: eventId/);
+  assert.match(sql, /LOVABLE_SIMULATOR/);
+  assert.match(sql, /botao_panico/);
+  assert.match(config, /functions\.tracking-provider-poll/);
+});
+
 test('alertas usam painel operacional e criticidade fica em configuração separada', () => {
   const app = fs.readFileSync(path.join(root, 'js/app.js'), 'utf8');
   const html = fs.readFileSync(path.join(root, 'index.html'), 'utf8');

@@ -1,42 +1,62 @@
 # Integração do simulador Lovable com o SmartRisk
 
-O SmartRisk recebe alertas automaticamente por um webhook Supabase:
+O simulador disponibiliza uma API REST protegida. O SmartRisk consulta essa API no backend por meio da Edge Function `tracking-provider-poll`. A chave nunca passa pelo navegador.
+
+## Secrets necessários
+
+Em **Supabase > Edge Functions > Secrets**:
+
+```env
+TRACKING_PROVIDER_BASE_URL=https://alert-trigger-hub.lovable.app
+TRACKING_PROVIDER_API_KEY=CHAVE_GERADA_NO_SIMULADOR
+```
+
+A integração também reutiliza `TRACKING_INGEST_SECRET`, já utilizado entre as funções internas do SmartRisk.
+
+## Fluxo
 
 ```text
-POST https://zeswbeivbxayksihitfv.supabase.co/functions/v1/tracking-ingest
-Content-Type: application/json
-x-tracking-secret: valor configurado no segredo TRACKING_INGEST_SECRET
+Cron do Supabase
+  -> tracking-provider-poll
+  -> GET /api/public/v1/occurrences?status=aberta&limit=100
+  -> GET /api/public/v1/vehicles
+  -> normalização LOVABLE_SIMULATOR
+  -> tracking-ingest
+  -> idempotência e mapeamento
+  -> workflow, notificações e auditoria
 ```
 
-O segredo deve ficar no backend ou na função server-side do projeto Lovable. Não coloque esse segredo em código executado no navegador.
+O identificador da ocorrência do simulador é usado como `provider_event_id`. Consultas repetidas não criam alertas duplicados.
 
-## Contrato mínimo aceito
+## Códigos cadastrados inicialmente
 
-```json
-{
-  "provider": "CODIGO_REAL_DO_SIMULADOR",
-  "provider_event_id": "IDENTIFICADOR_UNICO",
-  "event_type": "CODIGO_REAL_DO_EVENTO",
-  "event_time": "2026-09-28T12:00:00Z",
-  "vehicle": { "plate": "ABC1D23" },
-  "driver": { "id": "opcional", "name": "opcional" },
-  "transporter_id": "UUID_DA_TRANSPORTADORA_NO_SMARTRISK",
-  "base_id": "UUID_DA_BASE_NO_SMARTRISK",
-  "description": "Descrição opcional",
-  "latitude": -23.5505,
-  "longitude": -46.6333,
-  "location": "Local opcional"
-}
+- `botao_panico`
+- `desvio_rota`
+- `desengate`
+- `perda_comunicacao`
+- `parada_nao_prevista`
+- `excesso_velocidade`
+
+O arquivo `supabase/008_lovable_provider_polling.sql` cadastra regras gerais para esses códigos. Na Configuração de alertas é possível criar uma regra específica e selecionar a transportadora do SmartRisk. Quando existe uma única regra específica para o código, ela também serve como vínculo da transportadora durante a simulação.
+
+## Publicação
+
+```powershell
+npx supabase functions deploy tracking-ingest
+npx supabase functions deploy tracking-provider-poll
 ```
 
-Antes do primeiro envio, cadastre em **Configuração de alertas** o mesmo `provider`, `event_type` e, quando aplicável, a transportadora. O mapeamento específico da transportadora tem prioridade sobre a regra geral.
+## Teste manual da função
 
-## Respostas esperadas
+Use o mesmo valor de `TRACKING_INGEST_SECRET` no header abaixo, sem publicar o valor em arquivos ou no frontend:
 
-- `201`: alerta criado.
-- `200` com `duplicate: true`: evento já recebido; nenhum alerta duplicado foi criado.
-- `200` com `ignored: true`: evento auditado, mas sem mapeamento ativo.
-- `400`: payload inválido.
-- `401`: segredo ausente ou incorreto.
+```text
+POST https://zeswbeivbxayksihitfv.supabase.co/functions/v1/tracking-provider-poll
+Authorization: Bearer SEU_TRACKING_INGEST_SECRET
+```
 
-Para concluir a integração de saída do Lovable, ainda são necessários os nomes exatos dos campos, a forma como o simulador guarda os UUIDs da transportadora/base e onde o segredo server-side será configurado.
+A resposta informa quantos eventos foram recebidos, criados, ignorados ou apresentaram erro.
+
+## Agendamento
+
+No Supabase Cron, agende uma requisição HTTP `POST` para a função `tracking-provider-poll` a cada minuto. Inclua o header `Authorization: Bearer ...` com o valor de `TRACKING_INGEST_SECRET`. O navegador pode permanecer fechado.
