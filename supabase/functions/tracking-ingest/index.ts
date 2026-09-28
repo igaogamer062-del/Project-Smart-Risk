@@ -30,14 +30,16 @@ Deno.serve(async (request) => {
     if (inserted.error) throw inserted.error;
     inboundId = inserted.data.id;
 
-    const mapped = await db.from("tracking_alert_mappings").select("*").eq("provider", provider).eq("provider_alert_code", eventCode).eq("active", true).maybeSingle();
-    if (mapped.error) throw mapped.error;
-    if (!mapped.data) {
+    const mappings = await db.from("tracking_alert_mappings").select("*").eq("provider", provider).eq("provider_alert_code", eventCode).eq("active", true);
+    if (mappings.error) throw mappings.error;
+    const mapped = (mappings.data || []).find((item) => event.transporter_id && item.transporter_id === event.transporter_id)
+      || (mappings.data || []).find((item) => !item.transporter_id);
+    if (!mapped) {
       await db.from("tracking_inbound_events").update({ processing_status: "IGNORED", processed_at: new Date().toISOString() }).eq("id", inboundId);
       await db.from("tracking_audit_logs").insert({ actor_type: "SYSTEM", component: "AlertNormalizationService", action: "Evento recebido e ignorado por não possuir mapeamento ativo.", entity_type: "tracking_inbound_event", entity_id: inboundId, metadata: { provider, event_code: eventCode } });
       return json({ ok: true, ignored: true, message: "Evento armazenado para auditoria; tipo não habilitado." });
     }
-    if (!mapped.data.creates_operational_alert) {
+    if (!mapped.creates_operational_alert) {
       await db.from("tracking_inbound_events").update({ processing_status: "IGNORED", processed_at: new Date().toISOString() }).eq("id", inboundId);
       return json({ ok: true, ignored: true, message: "Mapeamento configurado para não gerar alerta operacional." });
     }
@@ -51,11 +53,22 @@ Deno.serve(async (request) => {
 
     let aiResult: unknown = null;
     let aiAvailable: boolean | null = null;
-    let normalizedType = mapped.data.normalized_type;
-    let severity = mapped.data.severity;
-    if (mapped.data.requires_ai) {
+    let normalizedType = mapped.normalized_type;
+    let severity = mapped.severity;
+    if (mapped.requires_ai) {
       try {
-        aiResult = await classifyWithGroq(event, mapped.data.ai_instructions || "");
+        let knowledgeText = "";
+        if (event.transporter_id) {
+          const knowledge = await db.from("transporter_knowledge_documents")
+            .select("title,description,extracted_text")
+            .eq("transporter_id", event.transporter_id).eq("scope", "ALERT_AI").eq("active", true);
+          if (knowledge.error) throw knowledge.error;
+          knowledgeText = (knowledge.data || []).map((item) =>
+            [`Documento: ${item.title}`, item.description || "", item.extracted_text || ""].filter(Boolean).join("\n")
+          ).join("\n\n").slice(0, 16000);
+        }
+        const calibratedInstructions = [mapped.ai_instructions || "", knowledgeText && `Conhecimento específico da transportadora:\n${knowledgeText}`].filter(Boolean).join("\n\n");
+        aiResult = await classifyWithGroq(event, calibratedInstructions);
         aiAvailable = true;
         normalizedType = (aiResult as { alert_type: string }).alert_type;
         severity = (aiResult as { severity: string }).severity;
@@ -67,19 +80,19 @@ Deno.serve(async (request) => {
       }
     }
 
-    const deadline = new Date(Date.now() + Number(mapped.data.treatment_timeout_minutes || 60) * 60_000).toISOString();
+    const deadline = new Date(Date.now() + Number(mapped.treatment_timeout_minutes || 60) * 60_000).toISOString();
     const alert = await db.from("tracking_alerts").insert({
       inbound_event_id: inboundId, provider, provider_event_id: event.provider_event_id || null,
-      alert_type: normalizedType, severity, priority: mapped.data.priority,
+      alert_type: normalizedType, severity, priority: mapped.priority,
       vehicle_id: event.vehicle?.id || null, plate, driver_id: event.driver?.id || null, driver_name: event.driver?.name || null,
       transporter_id: event.transporter_id || null, base_id: resolvedBaseId, operation_name: event.operation || null,
       occurred_at: occurredAt, latitude: event.latitude ?? null, longitude: event.longitude ?? null, location_text: event.location || null,
-      description: event.description || mapped.data.description || null,
-      status: mapped.data.requires_treatment ? "PENDING_TREATMENT" : "TREATED",
+      description: event.description || mapped.description || null,
+      status: mapped.requires_treatment ? "PENDING_TREATMENT" : "TREATED",
       deadline_at: deadline,
-      treated_at: mapped.data.requires_treatment ? null : new Date().toISOString(),
-      visible_until: mapped.data.requires_treatment ? null : new Date(Date.now() + 10 * 60_000).toISOString(),
-      ai_used: Boolean(mapped.data.requires_ai), ai_available: aiAvailable, ai_result: aiResult, raw_payload: event,
+      treated_at: mapped.requires_treatment ? null : new Date().toISOString(),
+      visible_until: mapped.requires_treatment ? null : new Date(Date.now() + 10 * 60_000).toISOString(),
+      ai_used: Boolean(mapped.requires_ai), ai_available: aiAvailable, ai_result: aiResult, raw_payload: event,
     }).select("id,status,deadline_at").single();
     if (alert.error) throw alert.error;
     await db.from("tracking_inbound_events").update({ processing_status: "PROCESSED", processed_at: new Date().toISOString() }).eq("id", inboundId);

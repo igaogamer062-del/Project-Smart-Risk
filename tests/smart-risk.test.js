@@ -102,15 +102,27 @@ test('fluxo de ocorrência encaminha contato sem sucesso ao cliente pelo backend
   assert.match(migration, /select public\.tracking_workflow_tick\(\)/);
 });
 
-test('simulador do integrador exige administrador e não expõe segredo no frontend', () => {
+test('integração externa usa webhook e não mantém simulador manual no frontend', () => {
   const app = fs.readFileSync(path.join(root, 'js/app.js'), 'utf8');
-  const provider = fs.readFileSync(path.join(root, 'supabase/functions/tracking-test-provider/index.ts'), 'utf8');
-  assert.match(app, /id="tracking-simulator-form"/);
-  assert.match(app, /functions\.invoke\("tracking-test-provider"/);
+  const ingest = fs.readFileSync(path.join(root, 'supabase/functions/tracking-ingest/index.ts'), 'utf8');
+  assert.doesNotMatch(app, /tracking-simulator-form|tracking-test-provider/);
   assert.doesNotMatch(app, /TRACKING_INGEST_SECRET/);
-  assert.match(provider, /profile\.data\?\.access_role === "Administrador"/);
-  assert.doesNotMatch(app, /data-tracking-occurrence/);
+  assert.match(ingest, /x-tracking-secret/);
+  assert.match(app, /data-tracking-occurrence/);
+  assert.match(app, /data-tracking-redo/);
   assert.doesNotMatch(app, /id="tracking-occurrence-result"/);
+});
+
+test('PGR e instruções de IA são vinculados à transportadora', () => {
+  const app = fs.readFileSync(path.join(root, 'js/app.js'), 'utf8');
+  const sql = fs.readFileSync(path.join(root, 'supabase/007_transporter_knowledge_and_pgr.sql'), 'utf8');
+  const ingest = fs.readFileSync(path.join(root, 'supabase/functions/tracking-ingest/index.ts'), 'utf8');
+  assert.match(app, /id:"pgr"/);
+  assert.match(app, /scope:'ALERT_AI'/);
+  assert.match(app, /scope:'PGR'/);
+  assert.match(sql, /transporter_knowledge_documents/);
+  assert.match(sql, /role_name <> 'Cliente'/);
+  assert.match(ingest, /Conhecimento específico da transportadora/);
 });
 
 test('alertas usam painel operacional e criticidade fica em configuração separada', () => {

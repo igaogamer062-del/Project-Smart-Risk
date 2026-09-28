@@ -28,13 +28,6 @@ export interface TrackingProvider {
   toSmartRiskEvent(payload: unknown): ProviderEvent;
 }
 
-export class TestTrackingProvider implements TrackingProvider {
-  readonly providerCode = "TEST_PROVIDER";
-  toSmartRiskEvent(payload: unknown): ProviderEvent {
-    return { ...(payload as ProviderEvent), provider: this.providerCode };
-  }
-}
-
 export class AlertNormalizationService {
   normalize(event: ProviderEvent): NormalizedProviderEvent {
     const provider = String(event.provider || "").trim();
@@ -47,4 +40,3 @@ export class AlertNormalizationService {
     return { provider, providerEventId: event.provider_event_id || null, providerAlertCode, occurredAt: parsed.toISOString(), plate, rawPayload: event };
   }
 }
-

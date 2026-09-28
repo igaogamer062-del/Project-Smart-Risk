@@ -162,10 +162,6 @@ create table if not exists public.tracking_alert_mappings (
   unique(provider,provider_alert_code)
 );
 
-insert into public.tracking_alert_mappings(provider,provider_alert_code,provider_alert_name,normalized_type,description,severity,priority,active,creates_operational_alert,requires_treatment,requires_ai)
-values('TEST_PROVIDER','PANIC_BUTTON','Botão de pânico','PANIC_BUTTON','Evento de teste para validar o pipeline antes da API real.','CRITICAL','URGENT',true,true,true,false)
-on conflict(provider,provider_alert_code) do nothing;
-
 create table if not exists public.tracking_inbound_events (
   id uuid primary key default gen_random_uuid(),
   provider text not null,

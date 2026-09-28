@@ -6,9 +6,6 @@ verify_jwt = false
 [functions.tracking-ingest]
 verify_jwt = false
 
-[functions.tracking-test-provider]
-verify_jwt = false
-
 [functions.tracking-occurrence-provider]
 verify_jwt = false
 

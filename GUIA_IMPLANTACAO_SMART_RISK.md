@@ -7,7 +7,7 @@ Este guia parte de um projeto Supabase vazio e de um repositório GitHub novo.
 - **GitHub Pages:** somente o frontend público (`index.html`, `css`, `js`, `images`).
 - **Supabase:** autenticação, banco, RLS, funções de backend, alertas, auditoria e agendamentos.
 - **Groq:** interpretação opcional de textos. A chave existe somente nos Secrets das Edge Functions.
-- **Integrador real:** ainda não é configurado. O backend usa `TEST_PROVIDER` até a documentação oficial chegar.
+- **Integrador ou simulador externo:** envia eventos ao webhook `tracking-ingest`. O código do provider deve vir da documentação do sistema de origem.
 
 A chave publishable do Supabase pode aparecer no frontend porque a segurança real é feita pelas políticas RLS. Nunca publique `service_role`, `GROQ_API_KEY` ou `TRACKING_INGEST_SECRET`.
 
@@ -91,7 +91,6 @@ Isso publica:
 - `admin-manage-user`: edita, desativa e redefine senha.
 - `groq-test`: teste autenticado de Structured Output.
 - `tracking-ingest`: entrada segura, validação, idempotência e normalização.
-- `tracking-test-provider`: simulador HTTP do integrador.
 - `tracking-workflow`: execução opcional do workflow por HTTP.
 
 ## 8. Testar a Groq isoladamente
@@ -130,11 +129,17 @@ O perfil Cliente vê somente Dashboard, Perfil e Alertas. O dashboard usa os ale
 
 Abra **Administração > Configurações de abas > Configuração de alertas do integrador**.
 
-Cada mapeamento guarda código e nome do fornecedor, tipo normalizado, severidade, prioridade, ativo, geração de alerta, necessidade de tratamento e uso opcional da Groq. O script já cria `TEST_PROVIDER / PANIC_BUTTON` para o primeiro teste.
+Cada mapeamento guarda fornecedor, código externo, transportadora opcional, tipo normalizado, severidade, prioridade, geração de alerta, necessidade de tratamento e uso opcional da Groq. Cadastre somente códigos presentes na documentação do integrador ou do simulador externo.
 
-## 11. Simular o integrador
+## 11. Conectar um simulador externo
 
-Use a função `tracking-test-provider` no painel do Supabase. Envie o header:
+Configure o simulador externo para enviar `POST` para:
+
+```text
+https://zeswbeivbxayksihitfv.supabase.co/functions/v1/tracking-ingest
+```
+
+Envie o header abaixo somente a partir do backend do simulador:
 
 ```text
 x-tracking-secret: O_MESMO_TRACKING_INGEST_SECRET
@@ -144,14 +149,17 @@ E um corpo com IDs reais cadastrados:
 
 ```json
 {
-  "event_type": "PANIC_BUTTON",
+  "provider": "CODIGO_DOCUMENTADO_DO_SIMULADOR",
+  "provider_event_id": "ID_UNICO_DO_EVENTO",
+  "event_type": "CODIGO_DOCUMENTADO_DO_EVENTO",
+  "event_time": "2026-09-28T12:00:00Z",
   "vehicle": { "plate": "ABC1D23" },
   "transporter_id": "UUID_DA_TRANSPORTADORA",
   "base_id": "UUID_DA_BASE"
 }
 ```
 
-O simulador encaminha o evento ao `tracking-ingest`. Repetir o mesmo `provider_event_id` não cria outro alerta. Eventos sem mapeamento ativo são guardados para auditoria e não viram alerta operacional.
+Repetir o mesmo `provider_event_id` não cria outro alerta. Eventos sem mapeamento ativo são guardados para auditoria e não viram alerta operacional. O SmartRisk não precisa ficar aberto no navegador para receber os eventos.
 
 ## 12. Ativar o workflow a cada 10 minutos
 
@@ -196,7 +204,7 @@ No Supabase, abra **Authentication > URL Configuration** e coloque essa URL em *
 1. Abra a URL do GitHub Pages em janela anônima.
 2. Entre com o login do primeiro administrador.
 3. Cadastre uma transportadora, uma base, um operador e um cliente.
-4. Rode `tracking-test-provider` com os UUIDs cadastrados.
+4. Envie um evento pelo simulador externo conforme `INTEGRACAO_SIMULADOR_LOVABLE.md`.
 5. Confirme o alerta na conta operacional.
 6. Clique em **Solicitar retorno**, descreva a situação e entre como Cliente.
 7. Responda. O alerta deve desaparecer da conta Cliente e gerar notificação para o operador escolhido e para a liderança.
