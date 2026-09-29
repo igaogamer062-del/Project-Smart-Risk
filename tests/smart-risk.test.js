@@ -85,10 +85,25 @@ test('subseções do menu apontam para controles existentes', () => {
 test('formulário de efetivo abre mesmo com configurações remotas incompletas', () => {
   const app = fs.readFileSync(path.join(root, 'js/app.js'), 'utf8');
   const flows = fs.readFileSync(path.join(root, 'js/flows-v59.js'), 'utf8');
+  assert.match(app, /function upgradeSearchBars\(scope\)/);
   assert.match(app, /db\.tabSettings=Object\.assign\(defaultTabSettings\(\),db\.tabSettings\|\|\{\}\)/);
   assert.match(flows, /settings\.plantoes\)&&settings\.plantoes\.length\?settings\.plantoes:\['Diurno','Noturno','Comercial'\]/);
   assert.match(flows, /db\(\)\.operationalBases\|\|\[\]/);
   assert.match(flows, /Falha ao abrir o registro de efetivo/);
+});
+
+test('alertas ativos equivalentes não duplicam e encerramento coletivo exige supervisão', () => {
+  const app = fs.readFileSync(path.join(root, 'js/app.js'), 'utf8');
+  const ingest = fs.readFileSync(path.join(root, 'supabase/functions/tracking-ingest/index.ts'), 'utf8');
+  const sql = fs.readFileSync(path.join(root, 'supabase/009_active_alert_dedup_and_bulk_close.sql'), 'utf8');
+  assert.match(ingest, /ACTIVE_ALERT_EXISTS/);
+  assert.match(ingest, /\.eq\("plate", plate\)/);
+  assert.match(sql, /tracking_alerts_one_active_vehicle_type_idx/);
+  assert.match(sql, /create or replace function public\.bulk_close_tracking_alerts/);
+  assert.match(sql, /'Supervisor','Coordenador','Gerente','Administrador'/);
+  assert.match(app, /id="tracking-bulk-close"/);
+  assert.match(app, /Finalizar todos os alertas sem verificação individual não é recomendado/);
+  assert.match(app, /Ocorrência gerada pelo sistema/);
 });
 
 test('fluxo de ocorrência encaminha contato sem sucesso ao cliente pelo backend', () => {

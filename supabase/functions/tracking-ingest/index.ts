@@ -80,6 +80,26 @@ Deno.serve(async (request) => {
       }
     }
 
+    const activeStatuses = ["PENDING_TREATMENT", "IN_TREATMENT", "WAITING_CLIENT", "CLIENT_RESPONDED"];
+    const activeAlert = await db.from("tracking_alerts")
+      .select("id,status,provider_event_id")
+      .eq("plate", plate)
+      .eq("alert_type", normalizedType)
+      .in("status", activeStatuses)
+      .limit(1)
+      .maybeSingle();
+    if (activeAlert.error) throw activeAlert.error;
+    if (activeAlert.data) {
+      await db.from("tracking_inbound_events").update({ processing_status: "IGNORED", processed_at: new Date().toISOString() }).eq("id", inboundId);
+      await db.from("tracking_audit_logs").insert({
+        actor_type: "SYSTEM", component: "AlertWorkflowService",
+        action: "Evento mantido somente em auditoria porque já existe alerta ativo equivalente para o veículo.",
+        entity_type: "tracking_inbound_event", entity_id: inboundId,
+        metadata: { existing_alert_id: activeAlert.data.id, plate, alert_type: normalizedType },
+      });
+      return json({ ok: true, duplicate: true, reason: "ACTIVE_ALERT_EXISTS", existing_alert_id: activeAlert.data.id });
+    }
+
     const deadline = new Date(Date.now() + Number(mapped.treatment_timeout_minutes || 60) * 60_000).toISOString();
     const alert = await db.from("tracking_alerts").insert({
       inbound_event_id: inboundId, provider, provider_event_id: event.provider_event_id || null,
@@ -94,6 +114,10 @@ Deno.serve(async (request) => {
       visible_until: mapped.requires_treatment ? null : new Date(Date.now() + 10 * 60_000).toISOString(),
       ai_used: Boolean(mapped.requires_ai), ai_available: aiAvailable, ai_result: aiResult, raw_payload: event,
     }).select("id,status,deadline_at").single();
+    if (alert.error?.code === "23505") {
+      await db.from("tracking_inbound_events").update({ processing_status: "IGNORED", processed_at: new Date().toISOString() }).eq("id", inboundId);
+      return json({ ok: true, duplicate: true, reason: "ACTIVE_ALERT_RACE" });
+    }
     if (alert.error) throw alert.error;
     await db.from("tracking_inbound_events").update({ processing_status: "PROCESSED", processed_at: new Date().toISOString() }).eq("id", inboundId);
     await db.from("tracking_alert_timeline").insert({ alert_id: alert.data.id, actor_type: "SYSTEM", actor_name: "TrackingIntegrationService", action: "Alerta operacional criado.", details: { provider, provider_event_id: event.provider_event_id || null } });
