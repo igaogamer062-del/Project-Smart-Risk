@@ -89,7 +89,23 @@ test('formulário de efetivo abre mesmo com configurações remotas incompletas'
   assert.match(app, /db\.tabSettings=Object\.assign\(defaultTabSettings\(\),db\.tabSettings\|\|\{\}\)/);
   assert.match(flows, /settings\.plantoes\)&&settings\.plantoes\.length\?settings\.plantoes:\['Diurno','Noturno','Comercial'\]/);
   assert.match(flows, /db\(\)\.operationalBases\|\|\[\]/);
-  assert.match(flows, /Falha ao abrir o registro de efetivo/);
+  assert.match(flows, /api\.saveStaff\(record,absenceRecords\)/);
+  assert.match(flows, /Já existe um efetivo para este plantão nesta data/);
+});
+
+test('efetivo e faltas usam tabelas próprias com regras de data e edição', () => {
+  const app = fs.readFileSync(path.join(root, 'js/app.js'), 'utf8');
+  const flows = fs.readFileSync(path.join(root, 'js/flows-v59.js'), 'utf8');
+  const sql = fs.readFileSync(path.join(root, 'supabase/010_effective_records.sql'), 'utf8');
+  assert.match(app, /from\("staff_controls"\)/);
+  assert.match(app, /from\("staff_absences"\)/);
+  assert.match(app, /save_staff_control/);
+  assert.match(app, /save_staff_absence/);
+  assert.match(sql, /unique\(work_date,shift\)/);
+  assert.match(sql, /Somente Supervisor ou superior pode editar um efetivo/);
+  assert.match(sql, /datas anteriores só podem ser criados por Coordenador ou superior/);
+  assert.match(sql, /America\/Sao_Paulo/);
+  assert.match(flows, /canEditRecord=record=>rank>=3/);
 });
 
 test('alertas ativos equivalentes não duplicam e encerramento coletivo exige supervisão', () => {

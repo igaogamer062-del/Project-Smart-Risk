@@ -190,10 +190,8 @@
   var CLOUD_ARRAY_MODULES={
     checklists:"checklists",
     overtime:"overtime",earlyDepartures:"early_departures",
-    absences:"absences",
     effectiveVacations:"effective_vacations",
     sanctions:"sanctions",
-    staffControls:"staff_controls",
     transfers:"transfers",
     operationalOccurrences:"operational_occurrences",
     sinistros:"sinistros",
@@ -294,7 +292,9 @@
         supabaseClient.from("user_notifications").select("*").order("created_at",{ascending:false}).limit(200),
         supabaseClient.from("base_extensions").select("*").eq("active",true).order("label"),
         supabaseClient.from("support_tickets").select("*").order("created_at",{ascending:false}).limit(500),
-        supabaseClient.from("transporter_knowledge_documents").select("*").order("created_at",{ascending:false}).limit(500)
+        supabaseClient.from("transporter_knowledge_documents").select("*").order("created_at",{ascending:false}).limit(500),
+        supabaseClient.from("staff_controls").select("payload,updated_at").order("work_date",{ascending:false}),
+        supabaseClient.from("staff_absences").select("payload,updated_at").order("work_date",{ascending:false})
       ]);
       responses.forEach(function(result,index){if(result.error&&index!==10)throw result.error;});
       var grouped={};(responses[0].data||[]).forEach(function(row){(grouped[row.module_key]||(grouped[row.module_key]=[])).push(row.payload);});
@@ -327,11 +327,30 @@
       db.baseExtensions=responses[8].data||[];
       db.supportTickets=responses[9].data||[];
       db.transporterKnowledge=responses[10].error?[]:(responses[10].data||[]);
+      db.staffControls=(responses[11].data||[]).map(function(row){return row.payload;});
+      db.absences=(responses[12].data||[]).map(function(row){return row.payload;});
       var serverNotifications=(responses[7].data||[]).map(function(n){var route=n.route||(n.alert_id?"central-ocorrencias":"menu");return {id:n.id,userId:n.user_id,type:route==="chamados"?"chamados":"alertas",title:n.title,message:n.message,route:route,recordId:n.record_id||n.alert_id||"",at:new Date(n.created_at).getTime(),read:!!n.read_at,serverNotification:true};});
       var localNotifications=(db.notifications||[]).filter(function(n){return !n.serverNotification;});db.notifications=serverNotifications.concat(localNotifications);
       cloudReady=true;
     }finally{cloudLoading=false;}
     scheduleCloudSync();
+  }
+  async function saveStaffControlRemote(record,absences){
+    var result=await supabaseClient.rpc("save_staff_control",{control_record:record,absence_records:absences||[]});
+    if(result.error)throw result.error;
+    await loadCloudData();
+    return result.data;
+  }
+  async function saveStaffAbsenceRemote(record){
+    var result=await supabaseClient.rpc("save_staff_absence",{absence_record:record});
+    if(result.error)throw result.error;
+    await loadCloudData();
+    return result.data;
+  }
+  async function deleteStaffAbsenceRemote(id){
+    var result=await supabaseClient.rpc("delete_staff_absence",{requested_id:id});
+    if(result.error)throw result.error;
+    await loadCloudData();
   }
   function startCloudRealtime(){
     if(!supabaseClient||cloudChannel)return;
@@ -346,6 +365,8 @@
       .on("postgres_changes",{event:"*",schema:"public",table:"base_extensions"},function(){clearTimeout(cloudReloadTimer);cloudReloadTimer=setTimeout(refreshCloudView,900);})
       .on("postgres_changes",{event:"*",schema:"public",table:"support_tickets"},function(){clearTimeout(cloudReloadTimer);cloudReloadTimer=setTimeout(refreshCloudView,900);})
       .on("postgres_changes",{event:"*",schema:"public",table:"transporter_knowledge_documents"},function(){clearTimeout(cloudReloadTimer);cloudReloadTimer=setTimeout(refreshCloudView,900);})
+      .on("postgres_changes",{event:"*",schema:"public",table:"staff_controls"},function(){clearTimeout(cloudReloadTimer);cloudReloadTimer=setTimeout(refreshCloudView,900);})
+      .on("postgres_changes",{event:"*",schema:"public",table:"staff_absences"},function(){clearTimeout(cloudReloadTimer);cloudReloadTimer=setTimeout(refreshCloudView,900);})
       .on("postgres_changes",{event:"*",schema:"public",table:"profiles"},function(){clearTimeout(profileReloadTimer);profileReloadTimer=setTimeout(refreshProfilesView,1800);})
       .subscribe();
   }
@@ -623,7 +644,7 @@
   function renderPage(id, user){
     var root = document.getElementById("view-root");
     CSRWorkspace.init({db:()=>db,user:currentUser,perms:()=>userPerms(currentUser()),pages:()=>PAGES,save:()=>saveDB(db),toast:toast,navigate:navigate});
-    CSRFlows.init({db:()=>db,user:currentUser,save:()=>saveDB(db),toast,remote:()=>!!db.supabaseConnected,client:()=>supabaseClient,perm:k=>opPerm(currentUser(),k),navigate,refresh:()=>render(),dot:alertDot,incident:()=>openWorkspaceBranch('sinistro','new'),pr:(a)=>{window.csrPrAlert=a.id;openPRModal(null);},commit:async(alert,linked,kind,closing)=>{const r=await supabaseClient.rpc('csr_transition_alert',{alert_id:alert.id,linked_record:linked,link_kind:kind,close_alert:closing,reason:alert.history.at(-1).note});if(r.error)throw r.error;}});
+    CSRFlows.init({db:()=>db,user:currentUser,save:()=>saveDB(db),saveStaff:saveStaffControlRemote,saveAbsence:saveStaffAbsenceRemote,deleteAbsence:deleteStaffAbsenceRemote,toast,remote:()=>!!db.supabaseConnected,client:()=>supabaseClient,perm:k=>opPerm(currentUser(),k),navigate,refresh:()=>render(),dot:alertDot,incident:()=>openWorkspaceBranch('sinistro','new'),pr:(a)=>{window.csrPrAlert=a.id;openPRModal(null);},commit:async(alert,linked,kind,closing)=>{const r=await supabaseClient.rpc('csr_transition_alert',{alert_id:alert.id,linked_record:linked,link_kind:kind,close_alert:closing,reason:alert.history.at(-1).note});if(r.error)throw r.error;}});
     var tpl = document.getElementById("tpl-" + id);
     root.innerHTML = "";
     if(tpl)root.appendChild(tpl.content.cloneNode(true));
@@ -2455,11 +2476,11 @@
     }    function absence(){
       root.innerHTML=nav()+'<div class="split-layout"><form class="section-card" id="ab4-form">'+userDatalist("ab4-users")+'<div class="section-title"><span class="eyebrow">NOVO REGISTRO</span><h2>Registrar falta</h2></div><div class="fgroup"><label>Colaborador *</label><input id="ab4-name" list="ab4-users" required></div><div class="form-grid two"><div class="fgroup"><label>Data *</label><input type="date" id="ab4-date" required></div><div class="fgroup"><label>Plantão *</label><select id="ab4-shift" required>'+settingOptions("plantoes","Selecione")+'</select></div><div class="fgroup"><label>Atestado</label><select id="ab4-note"><option>Sem atestado</option><option>Com atestado</option><option>Aguardando atestado</option></select></div></div><div class="fgroup"><label>Motivo *</label><textarea id="ab4-reason" rows="4" required></textarea></div><button class="btn btn-primary">Registrar falta</button></form><section class="section-card"><div class="bat-filterbar"><input id="ab4-search" placeholder="Pesquisar colaborador ou motivo..."><input id="ab4-filter-date" type="date"></div><div id="ab4-list" class="record-grid compact-records"></div></section></div>';
       wireNav();var search=document.getElementById("ab4-search"),date=document.getElementById("ab4-filter-date");search.oninput=draw;date.onchange=draw;
-      document.getElementById("ab4-form").onsubmit=function(e){e.preventDefault();var item={id:"absence-"+Date.now(),name:fieldValue("ab4-name"),date:fieldValue("ab4-date"),shift:fieldValue("ab4-shift"),certificate:fieldValue("ab4-note"),reason:fieldValue("ab4-reason"),by:currentUser().nome,at:Date.now()};db.absences.push(item);saveDB(db);addLog("Falta registrada: "+item.name);e.target.reset();draw();toast("Falta registrada.","success");};
+      document.getElementById("ab4-form").onsubmit=async function(e){e.preventDefault();var item={id:"absence-"+Date.now(),name:fieldValue("ab4-name"),date:fieldValue("ab4-date"),shift:fieldValue("ab4-shift"),certificate:fieldValue("ab4-note"),reason:fieldValue("ab4-reason"),by:currentUser().nome,at:Date.now()};try{if(db.supabaseConnected)await saveStaffAbsenceRemote(item);else{db.absences.push(item);saveDB(db);}addLog("Falta registrada: "+item.name);e.target.reset();draw();toast("Falta registrada.","success");}catch(error){toast(error.message||"Não foi possível registrar a falta.","error");}};
       function draw(){var q=search.value.toLowerCase();document.getElementById("ab4-list").innerHTML=db.absences.slice().reverse().filter(function(a){return (!date.value||a.date===date.value)&&(!q||[a.name,a.reason,a.shift].join(" ").toLowerCase().includes(q));}).map(function(a){return '<button class="record-card record-card-button" data-ab4="'+a.id+'"><span class="badge">'+escapeHtml(a.certificate||"Sem atestado")+'</span><h3>'+escapeHtml(a.name)+'</h3><p>'+fmtDateBR(a.date)+(a.shift?' · '+escapeHtml(a.shift):'')+'</p><small>Visualizar ou editar →</small></button>';}).join("")||'<div class="empty-state">Nenhuma falta encontrada.</div>';root.querySelectorAll("[data-ab4]").forEach(function(b){b.onclick=function(){open(b.dataset.ab4);};});}
       function open(id,edit){var a=db.absences.find(function(x){return x.id===id;});if(!a)return;var view='<div class="record-detail-grid"><div><span>Colaborador</span><b>'+escapeHtml(a.name)+'</b></div><div><span>Data</span><b>'+fmtDateBR(a.date)+'</b></div><div><span>Plantão</span><b>'+escapeHtml(a.shift||"Não informado")+'</b></div><div><span>Atestado</span><b>'+escapeHtml(a.certificate||"Não informado")+'</b></div><div class="span-all"><span>Motivo</span><p>'+escapeHtml(a.reason||a.obs||"Não informado")+'</p></div></div><div class="actions-row"><button class="btn btn-secondary" data-ab4-edit>Editar</button><button class="btn btn-danger" data-ab4-delete>Excluir</button></div>';
         var form='<form id="ab4-edit-form">'+userDatalist("ab4-edit-users")+'<div class="fgroup"><label>Colaborador *</label><input id="ab4-edit-name" list="ab4-edit-users" value="'+escapeHtml(a.name)+'" required></div><div class="form-grid two"><div class="fgroup"><label>Data *</label><input id="ab4-edit-date" type="date" value="'+a.date+'" required></div><div class="fgroup"><label>Plantão *</label><select id="ab4-edit-shift" required>'+settingOptions("plantoes","Selecione")+'</select></div><div class="fgroup"><label>Atestado</label><select id="ab4-edit-note"><option>Sem atestado</option><option>Com atestado</option><option>Aguardando atestado</option></select></div></div><div class="fgroup"><label>Motivo *</label><textarea id="ab4-edit-reason" required>'+escapeHtml(a.reason||a.obs||"")+'</textarea></div><div class="actions-row"><button type="button" class="btn btn-secondary" data-eff-close>Cancelar</button><button class="btn btn-success">Salvar edição</button></div></form>';
-        document.body.insertAdjacentHTML("beforeend",modalShell(edit?"Editar falta":"Detalhes da falta",edit?form:view));document.querySelectorAll("[data-eff-close]").forEach(function(x){x.onclick=closeModal;});if(edit){document.getElementById("ab4-edit-shift").value=a.shift||"";document.getElementById("ab4-edit-note").value=a.certificate||"Sem atestado";document.getElementById("ab4-edit-form").onsubmit=function(e){e.preventDefault();var current=db.absences.find(function(x){return x.id===id;});if(!current)return;Object.assign(current,{name:fieldValue("ab4-edit-name"),date:fieldValue("ab4-edit-date"),shift:fieldValue("ab4-edit-shift"),certificate:fieldValue("ab4-edit-note"),reason:fieldValue("ab4-edit-reason"),updatedBy:currentUser().nome,updatedAt:Date.now()});saveDB(db);addLog("Falta editada: "+current.name);closeModal();draw();toast("Edição salva.","success");};}else{document.querySelector("[data-ab4-edit]").onclick=function(){closeModal();open(id,true);};document.querySelector("[data-ab4-delete]").onclick=function(){if(confirm("Excluir este registro de falta?")){db.absences=db.absences.filter(function(x){return x.id!==id;});saveDB(db);addLog("Falta excluída: "+a.name);closeModal();draw();}};}}
+        document.body.insertAdjacentHTML("beforeend",modalShell(edit?"Editar falta":"Detalhes da falta",edit?form:view));document.querySelectorAll("[data-eff-close]").forEach(function(x){x.onclick=closeModal;});if(edit){document.getElementById("ab4-edit-shift").value=a.shift||"";document.getElementById("ab4-edit-note").value=a.certificate||"Sem atestado";document.getElementById("ab4-edit-form").onsubmit=async function(e){e.preventDefault();var current=db.absences.find(function(x){return x.id===id;});if(!current)return;Object.assign(current,{name:fieldValue("ab4-edit-name"),date:fieldValue("ab4-edit-date"),shift:fieldValue("ab4-edit-shift"),certificate:fieldValue("ab4-edit-note"),reason:fieldValue("ab4-edit-reason"),updatedBy:currentUser().nome,updatedAt:Date.now()});try{if(db.supabaseConnected)await saveStaffAbsenceRemote(current);else saveDB(db);addLog("Falta editada: "+current.name);closeModal();draw();toast("Edição salva.","success");}catch(error){toast(error.message||"Não foi possível editar a falta.","error");}};}else{document.querySelector("[data-ab4-edit]").onclick=function(){closeModal();open(id,true);};document.querySelector("[data-ab4-delete]").onclick=async function(){if(!confirm("Excluir este registro de falta?"))return;try{if(db.supabaseConnected)await deleteStaffAbsenceRemote(id);else{db.absences=db.absences.filter(function(x){return x.id!==id;});saveDB(db);}addLog("Falta excluída: "+a.name);closeModal();draw();}catch(error){toast(error.message||"Não foi possível excluir a falta.","error");}};}}
       draw();
     }
     function vacation(){renderSimpleRecords({key:"effectiveVacations",title:"Férias",singular:"férias",prefix:"ev4",fields:[{key:"name",label:"Colaborador",type:"user"},{key:"start",label:"Entrada",type:"date"},{key:"end",label:"Retorno",type:"date"}],summary:function(v){return fmtDateBR(v.start)+" até "+fmtDateBR(v.end);},validate:function(v){return v.end>=v.start?"":"O retorno deve ser posterior à saída.";}});}
