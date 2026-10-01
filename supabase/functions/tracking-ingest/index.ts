@@ -100,7 +100,8 @@ Deno.serve(async (request) => {
       return json({ ok: true, duplicate: true, reason: "ACTIVE_ALERT_EXISTS", existing_alert_id: activeAlert.data.id });
     }
 
-    const deadline = new Date(Date.now() + Number(mapped.treatment_timeout_minutes || 60) * 60_000).toISOString();
+    const initialCheckAt = new Date(Date.now() + 5 * 60_000).toISOString();
+    const deadline = new Date(Date.now() + (5 + Number(mapped.treatment_timeout_minutes || 60)) * 60_000).toISOString();
     const alert = await db.from("tracking_alerts").insert({
       inbound_event_id: inboundId, provider, provider_event_id: event.provider_event_id || null,
       alert_type: normalizedType, severity, priority: mapped.priority,
@@ -109,6 +110,8 @@ Deno.serve(async (request) => {
       occurred_at: occurredAt, latitude: event.latitude ?? null, longitude: event.longitude ?? null, location_text: event.location || null,
       description: event.description || mapped.description || null,
       status: mapped.requires_treatment ? "PENDING_TREATMENT" : "TREATED",
+      initial_check_at: initialCheckAt,
+      workflow_stage: mapped.requires_treatment ? "WAITING_INITIAL_CHECK" : "OBSERVATION",
       deadline_at: deadline,
       treated_at: mapped.requires_treatment ? null : new Date().toISOString(),
       visible_until: mapped.requires_treatment ? null : new Date(Date.now() + 10 * 60_000).toISOString(),
@@ -121,7 +124,7 @@ Deno.serve(async (request) => {
     if (alert.error) throw alert.error;
     await db.from("tracking_inbound_events").update({ processing_status: "PROCESSED", processed_at: new Date().toISOString() }).eq("id", inboundId);
     await db.from("tracking_alert_timeline").insert({ alert_id: alert.data.id, actor_type: "SYSTEM", actor_name: "TrackingIntegrationService", action: "Alerta operacional criado.", details: { provider, provider_event_id: event.provider_event_id || null } });
-    await db.from("tracking_audit_logs").insert({ actor_type: "SYSTEM", component: "AlertWorkflowService", action: "Alerta criado com prazo determinístico.", entity_type: "tracking_alert", entity_id: alert.data.id, metadata: { deadline_at: deadline } });
+    await db.from("tracking_audit_logs").insert({ actor_type: "SYSTEM", component: "AlertWorkflowService", action: "Alerta criado com prazo determinístico.", entity_type: "tracking_alert", entity_id: alert.data.id, metadata: { initial_check_at: initialCheckAt, deadline_at: deadline, initial_window_minutes: 5 } });
     return json({ ok: true, duplicate: false, alert: alert.data }, 201);
   } catch (error) {
     console.error("tracking-ingest", error instanceof Error ? error.message : error);

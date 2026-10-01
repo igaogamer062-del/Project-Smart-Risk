@@ -227,3 +227,62 @@ test('chamados possuem abertura, fila autorizável e notificações individuais'
   assert.match(app, /function generateSupportTicket/);
   assert.match(app, /data-ticket-generate/);
 });
+
+
+test('módulos operacionais persistem em tabela própria e reaparecem após novo login', () => {
+  const app = fs.readFileSync(path.join(root, 'js/app.js'), 'utf8');
+  const sql = fs.readFileSync(path.join(root, 'supabase/011_alert_flow_and_operational_records.sql'), 'utf8');
+  assert.match(app, /OPERATIONAL_ARRAY_MODULES=\{overtime:"overtime",earlyDepartures:"early_departures"/);
+  assert.match(app, /replace_operational_module/);
+  assert.match(app, /from\("operational_module_records"\)/);
+  assert.match(sql, /create table if not exists public\.operational_module_records/);
+  assert.match(sql, /'sinistros','pronta_resposta'/);
+  assert.match(sql, /delete from public\.operational_module_records where module_key=requested_module/);
+});
+
+test('fluxo segue janela inicial, análise de ocorrência, transportadora e decisão da gestão', () => {
+  const sql = fs.readFileSync(path.join(root, 'supabase/011_alert_flow_and_operational_records.sql'), 'utf8');
+  const ingest = fs.readFileSync(path.join(root, 'supabase/functions/tracking-ingest/index.ts'), 'utf8');
+  const occurrence = fs.readFileSync(path.join(root, 'supabase/functions/tracking-occurrence-provider/index.ts'), 'utf8');
+  const groq = fs.readFileSync(path.join(root, 'supabase/functions/_shared/groq.ts'), 'utf8');
+  assert.match(ingest, /initialCheckAt = new Date\(Date\.now\(\) \+ 5 \* 60_000\)/);
+  assert.match(sql, /workflow_stage='WAITING_OCCURRENCE'/);
+  assert.match(sql, /Realizada tentativa de contato com o condutor sem sucesso\./);
+  assert.match(sql, /occurrence_check_status='CORRECT' and contact_result='SUCCESS'/);
+  assert.match(sql, /occurrence_check_status='CORRECT' and contact_result='NO_SUCCESS'/);
+  assert.match(sql, /workflow_stage='REDO_REQUIRED'/);
+  assert.match(occurrence, /classifyOccurrenceWithGroq/);
+  assert.match(groq, /tracking_occurrence_classification/);
+  assert.match(sql, /A decisão final pertence à liderança/);
+});
+
+test('encerramento coletivo envia os alertas diretamente ao histórico', () => {
+  const app = fs.readFileSync(path.join(root, 'js/app.js'), 'utf8');
+  const sql = fs.readFileSync(path.join(root, 'supabase/011_alert_flow_and_operational_records.sql'), 'utf8');
+  assert.match(sql, /set status='ARCHIVED',workflow_stage='ARCHIVED'/);
+  assert.match(sql, /visible_until=now\(\)/);
+  assert.match(app, /value="ARCHIVED">Histórico/);
+  assert.match(app, /enviados imediatamente ao histórico/);
+});
+
+
+test('ocorrência de sucesso após envio ao cliente volta para decisão da gestão', () => {
+  const sql = fs.readFileSync(path.join(root, 'supabase/012_client_observation_return.sql'), 'utf8');
+  const app = fs.readFileSync(path.join(root, 'js/app.js'), 'utf8');
+  assert.match(sql, /CLIENT_SUCCESS_OBSERVATION/);
+  assert.match(sql, /status='CLIENT_RESPONDED',workflow_stage='MANAGEMENT_DECISION'/);
+  assert.match(app, /workflow_stage==='CLIENT_SUCCESS_OBSERVATION'/);
+  assert.match(app, /Ocorrência atualizada/);
+});
+
+
+test('gestão pode continuar o alerta com pronta resposta, sinistro ou acionamento policial', () => {
+  const app = fs.readFileSync(path.join(root, 'js/app.js'), 'utf8');
+  const sql = fs.readFileSync(path.join(root, 'supabase/013_tracking_continuation_actions.sql'), 'utf8');
+  assert.match(sql, /PRONTA_RESPOSTA','SINISTRO','POLICE/);
+  assert.match(sql, /module_name:='pronta_resposta'/);
+  assert.match(sql, /module_name:='sinistros'/);
+  assert.match(sql, /POLICE_ACTION_ACTIVE/);
+  assert.match(app, /data-tracking-continue/);
+  assert.match(app, /continue_tracking_alert/);
+});
