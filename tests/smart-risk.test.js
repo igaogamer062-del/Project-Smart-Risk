@@ -177,8 +177,9 @@ test('alertas usam painel operacional e criticidade fica em configuração separ
   assert.match(app, /id:"config-alertas"/);
   assert.match(app, /function renderAlertConfiguration/);
   assert.match(app, /alerts-workspace/);
-  assert.match(app, /data-alert-pane="integrator"/);
-  assert.match(app, /data-alert-pane="manual"/);
+  assert.match(app, /data-alert-view="active"/);
+  assert.match(app, /data-alert-view="history"/);
+  assert.doesNotMatch(app, /Registros manuais<\/button>/);
   assert.match(app, /tracking-alert-severity/);
   assert.match(html, /id="tpl-config-alertas"/);
   assert.match(html, /alerts-v513\.css/);
@@ -261,7 +262,8 @@ test('encerramento coletivo envia os alertas diretamente ao histórico', () => {
   const sql = fs.readFileSync(path.join(root, 'supabase/011_alert_flow_and_operational_records.sql'), 'utf8');
   assert.match(sql, /set status='ARCHIVED',workflow_stage='ARCHIVED'/);
   assert.match(sql, /visible_until=now\(\)/);
-  assert.match(app, /value="ARCHIVED">Histórico/);
+  assert.match(app, /alertView==="history"/);
+  assert.match(app, /data-alert-view="history">Alertas encerrados/);
   assert.match(app, /enviados imediatamente ao histórico/);
 });
 
@@ -285,4 +287,14 @@ test('gestão pode continuar o alerta com pronta resposta, sinistro ou acionamen
   assert.match(sql, /POLICE_ACTION_ACTIVE/);
   assert.match(app, /data-tracking-continue/);
   assert.match(app, /continue_tracking_alert/);
+});
+
+
+test('central de alertas remove navegação manual e separa ativos de encerrados', () => {
+  const app = fs.readFileSync(path.join(root, 'js/app.js'), 'utf8');
+  assert.match(app, /data-alert-view="active">Alertas ativos/);
+  assert.match(app, /data-alert-view="history">Alertas encerrados/);
+  assert.doesNotMatch(app, /Registros manuais<\/button>/);
+  assert.doesNotMatch(app, /\+ Novo alerta/);
+  assert.match(app, /alert\.status="ARCHIVED";alert\.workflow_stage="ARCHIVED"/);
 });
